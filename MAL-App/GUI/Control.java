@@ -72,7 +72,7 @@ public class Control extends JPanel {
         AXY.add(new JLabel(")"));
         AQ.add(new JLabel("qA="));
         AQ.add(qtextA);
-        AQ.add(new JLabel("eV"));
+        AQ.add(new JLabel("nC"));
         
      // Saisie point B
     	JFormattedTextField xtextB = new JFormattedTextField() ;
@@ -100,7 +100,7 @@ public class Control extends JPanel {
         BXY.add(new JLabel(")"));
         BQ.add(new JLabel("qB="));
         BQ.add(qtextB);
-        BQ.add(new JLabel("eV"));
+        BQ.add(new JLabel("nC"));
         
      // Saisie point M
     	JFormattedTextField xtextM = new JFormattedTextField() ;
@@ -203,10 +203,10 @@ public class Control extends JPanel {
         	   double xM= ((double)(int)(Double.parseDouble(xtextM.getText())*100))/100;
         	   double yM= ((double)(int)(Double.parseDouble(ytextM.getText())*100))/100;
         	   
-        	   p.getA().setQ(qA*1.602e-19);
+        	   p.getA().setQ(qA*1e-9);
         	   p.getA().getPoint().setX(xA);
         	   p.getA().getPoint().setY(yA);
-        	   p.getB().setQ(qB*1.602e-19);
+        	   p.getB().setQ(qB*1e-9);
         	   p.getB().getPoint().setX(xB);
         	   p.getB().getPoint().setY(yB);
         	   p.getM().setX(xM);
@@ -214,6 +214,10 @@ public class Control extends JPanel {
         	   
         	   ElectricField Field = new ElectricField(p);
         	   pot = Field.getElectricField();
+        	   
+        	   //Calcul du pot en M
+        	   p.calculPotentiel(p.getA(), p.getB(), p.getM());
+        	   System.out.println("Le potentiel en M est: "+p.getV());
         	   
         	   panelDrawing.start(pot, "grad");
         	   panelDrawing.gradient();

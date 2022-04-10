@@ -22,16 +22,15 @@ public class Potentiel {
     }
     
 
-    public void calculPotentiel(Particule A, Particule B, Point M) {
+    public void calculPotentiel(Particule A, Particule B, Point calculM) {
     	this.a = A;
     	this.b = B;
-    	this.m = M;
-        double da = Math.sqrt(Math.pow(a.getPoint().getX()-m.getX(),2)+Math.pow(a.getPoint().getY()-m.getY(),2)); // attention par 0
-        double db = Math.sqrt(Math.pow(b.getPoint().getX()-m.getX(),2)+Math.pow(b.getPoint().getY()-m.getY(),2)); // attention par 0
+        double da = Math.sqrt(Math.pow(a.getPoint().getX()-calculM.getX(),2)+Math.pow(a.getPoint().getY()-calculM.getY(),2)); // attention par 0
+        double db = Math.sqrt(Math.pow(b.getPoint().getX()-calculM.getX(),2)+Math.pow(b.getPoint().getY()-calculM.getY(),2)); // attention par 0
         double qa = this.a.q;
         double qb = this.b.q;
         double c = (double) 1 / (4 * Math.PI * 8.85419782e-12);
-        v =  (c * (qa / da + qb / db));
+        v =  (c * (qa / 10*da + qb / db));
     }
     
     public double getV() {
