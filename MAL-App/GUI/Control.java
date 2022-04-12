@@ -2,22 +2,30 @@ package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import Business.*;
 
@@ -33,12 +41,15 @@ public class Control extends JPanel {
     
     private Potentiel p;
     private double[][] pot;
-    private String mode="Ech"; // Ech Point Para 
     double plus, minus;
     
     JPanel panEch;
     JPanel panPoint;
     JPanel panPara;
+    
+    JRadioButton Graph;
+    JRadioButton Point;
+    JRadioButton Para;
     
     public Control(Potentiel p) {
     	this.setPreferredSize(new Dimension(200,180));
@@ -58,9 +69,9 @@ public class Control extends JPanel {
         
         // Selection
         JPanel Selec = new JPanel();
-        JRadioButton Graph = new JRadioButton();
-        JRadioButton Point = new JRadioButton();
-        JRadioButton Para = new JRadioButton();
+        Graph = new JRadioButton();
+        Point = new JRadioButton();
+        Para = new JRadioButton();
         ButtonGroup SelecButton = new ButtonGroup();
         SelecButton.add(Graph);
         SelecButton.add(Point);
@@ -70,15 +81,23 @@ public class Control extends JPanel {
         Selec.add(Para);
         this.add(Selec);
         Graph.doClick();
+        Graph.setFocusable(false);
+        Point.setFocusable(false);
+        Para.setFocusable(false);
+        Point.setEnabled(false);
+        Para.setEnabled(false);
         Graph.addActionListener((ActionEvent evt) -> {
         	panEch.setVisible(true);
             panPoint.setVisible(false);
             panPara.setVisible(false);
+            Point.setEnabled(false);
+            Para.setEnabled(false);
             });
         Point.addActionListener((ActionEvent evt) -> {
         	panEch.setVisible(false);
             panPoint.setVisible(true);
             panPara.setVisible(false);
+            Para.setEnabled(false);
             });
         Para.addActionListener((ActionEvent evt) -> {
         	panEch.setVisible(false);
@@ -93,13 +112,20 @@ public class Control extends JPanel {
     }
     private void genPanEch() {
     	panEch.setLayout(new GridLayout(0,1));
+    	JPanel labelWrapper = new JPanel();
     	JLabel label = new JLabel("Paramètres Graphique", SwingConstants.CENTER);
-    	label.setBorder(BorderFactory.createLineBorder(Color.black, 2));
+    	label.setBackground(Color.BLACK);
+    	label.setOpaque(true);
+    	label.setForeground(Color.WHITE);
+    	labelWrapper.add(label);
     	
     	// Saisie de la graduation
     	JPanel grad = new JPanel();
     	grad.add(new JLabel("graduation ="));
     	JFormattedTextField gradtext = new JFormattedTextField() ;
+    	gradtext.setBackground(getBackground());
+    	gradtext.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+    	gradtext.setHorizontalAlignment(JTextField.CENTER);
     	gradtext.setColumns(4);
     	gradtext.setText("1");
     	grad.add(gradtext);
@@ -108,6 +134,9 @@ public class Control extends JPanel {
     	JPanel xmax = new JPanel();
     	xmax.add(new JLabel("xmax ="));
     	JFormattedTextField xmaxtext = new JFormattedTextField() ;
+    	xmaxtext.setBackground(getBackground());
+    	xmaxtext.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+    	xmaxtext.setHorizontalAlignment(JTextField.CENTER);
     	xmaxtext.setColumns(4);
     	xmaxtext.setText("15");
     	xmax.add(xmaxtext);
@@ -138,71 +167,100 @@ public class Control extends JPanel {
         		panelDrawing.repaint();
         		panPoint.setVisible(true);
         		panEch.setVisible(false);
+        		Point.setEnabled(true);
+        		Point.doClick();
+        		Point.doClick();
         	}
         	
             });
-        panEch.add(label);
+        panEch.add(labelWrapper);
         panEch.add(xmax);
         panEch.add(grad);
         panEch.add(Valider);
     }
+    
     private void genPanPoint() {
     	panPoint.setLayout(new GridLayout(0,1));
+    	JPanel labelWrapper = new JPanel();
     	JLabel label = new JLabel("Coordonées des Points", SwingConstants.CENTER);
-    	label.setBorder(BorderFactory.createLineBorder(Color.black, 2));
+    	label.setBackground(Color.BLACK);
+    	label.setOpaque(true);
+    	label.setForeground(Color.WHITE);
+    	labelWrapper.add(label);
     	
     	// Saisie point A
     	JFormattedTextField xtextA = new JFormattedTextField() ;
-        xtextA.setColumns(4);
-        
+    	xtextA.setBackground(getBackground());
+    	xtextA.setColumns(2);
+    	xtextA.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+    	xtextA.setHorizontalAlignment(JTextField.CENTER);
         JFormattedTextField  ytextA = new JFormattedTextField() ;
-        ytextA.setColumns(4);
-        
+        ytextA.setBackground(getBackground());
+        ytextA.setColumns(2);
+        ytextA.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+        ytextA.setHorizontalAlignment(JTextField.CENTER);
         JFormattedTextField qtextA = new JFormattedTextField() ;
-        qtextA.setColumns(4);
+        qtextA.setBackground(getBackground());
+        qtextA.setColumns(2);
+        qtextA.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+        qtextA.setHorizontalAlignment(JTextField.CENTER);
 
-        JPanel AXY = new JPanel();
-        JPanel AQ = new JPanel();
+        JPanel AXYQ = new JPanel();
+        AXYQ.setLayout(new BoxLayout(AXYQ, BoxLayout.X_AXIS));
         
-        AXY.add(new JLabel("A=("));
-        AXY.add(xtextA);
-        AXY.add(new JLabel(";"));
-        AXY.add(ytextA);
-        AXY.add(new JLabel(")"));
-        AQ.add(new JLabel("qA="));
-        AQ.add(qtextA);
-        AQ.add(new JLabel("nC"));
+        AXYQ.add(new JLabel(" A=("));
+        AXYQ.add(xtextA);
+        AXYQ.add(new JLabel(";"));
+        AXYQ.add(ytextA);
+        AXYQ.add(new JLabel(")"));
+        AXYQ.add(new JLabel("   qA="));
+        AXYQ.add(qtextA);
+        AXYQ.add(new JLabel("nC "));
         
      // Saisie point B
-    	JFormattedTextField xtextB = new JFormattedTextField() ;
-    	xtextB.setColumns(4);
-        
+        JFormattedTextField xtextB = new JFormattedTextField() ;
+    	xtextB.setBackground(getBackground());
+    	xtextB.setColumns(2);
+    	xtextB.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+    	xtextB.setHorizontalAlignment(JTextField.CENTER);
         JFormattedTextField  ytextB = new JFormattedTextField() ;
-        ytextB.setColumns(4);
-        
+        ytextB.setBackground(getBackground());
+        ytextB.setColumns(2);
+        ytextB.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+        ytextB.setHorizontalAlignment(JTextField.CENTER);
         JFormattedTextField qtextB = new JFormattedTextField() ;
-        qtextB.setColumns(4);
+        qtextB.setBackground(getBackground());
+        qtextB.setColumns(2);
+        qtextB.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+        qtextB.setHorizontalAlignment(JTextField.CENTER);
 
-        JPanel BXY = new JPanel();
-        JPanel BQ = new JPanel();
+        JPanel BXYQ = new JPanel();
+        BXYQ.setLayout(new BoxLayout(BXYQ, BoxLayout.X_AXIS));
         
-        BXY.add(new JLabel("B=("));
-        BXY.add(xtextB);
-        BXY.add(new JLabel(";"));
-        BXY.add(ytextB);
-        BXY.add(new JLabel(")"));
-        BQ.add(new JLabel("qB="));
-        BQ.add(qtextB);
-        BQ.add(new JLabel("nC"));
+        BXYQ.add(new JLabel(" B=("));
+        BXYQ.add(xtextB);
+        BXYQ.add(new JLabel(";"));
+        BXYQ.add(ytextB);
+        BXYQ.add(new JLabel(")"));
+        BXYQ.add(new JLabel("   qB="));
+        BXYQ.add(qtextB);
+        BXYQ.add(new JLabel("nC "));
         
      // Saisie point M
-    	JFormattedTextField xtextM = new JFormattedTextField() ;
-    	xtextM.setColumns(4);
-        
+        JFormattedTextField xtextM = new JFormattedTextField() ;
+        xtextM.setBackground(getBackground());
+        xtextM.setColumns(2);
+        xtextM.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+        xtextM.setHorizontalAlignment(JTextField.CENTER);
+        xtextM.setPreferredSize(new Dimension(35,20));
         JFormattedTextField  ytextM = new JFormattedTextField() ;
-        ytextM.setColumns(4);
+        ytextM.setBackground(getBackground());
+        ytextM.setColumns(2);
+        ytextM.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+        ytextM.setHorizontalAlignment(JTextField.CENTER);
+        ytextM.setPreferredSize(new Dimension(35,20));
 
-        JPanel MXY = new JPanel();
+        JPanel MXY = new JPanel(new GridBagLayout());
         
         MXY.add(new JLabel("M=("));
         MXY.add(xtextM);
@@ -211,23 +269,14 @@ public class Control extends JPanel {
         MXY.add(new JLabel(")"));
         
         // Bouton Valider
-        JButton Valider = new JButton("Valider"); 
-        
-        // Bouton Modifier
-        JButton Modifier = new JButton("Modifier"); 
-        Modifier.setEnabled(false);
-    	
-        // Ligne Bouton
         JPanel Bouton = new JPanel();
+        JButton Valider = new JButton("Valider"); 
         Bouton.add(Valider);
-        Bouton.add(Modifier);
         
     	// Ajouts des element
-        panPoint.add(label);
-        panPoint.add(AXY);  
-        panPoint.add(AQ);
-        panPoint.add(BXY);  
-        panPoint.add(BQ);
+        panPoint.add(labelWrapper);
+        panPoint.add(AXYQ); 
+        panPoint.add(BXYQ);
         panPoint.add(MXY);  
         panPoint.add(Bouton);
     	
@@ -308,10 +357,10 @@ public class Control extends JPanel {
         	   pot = Field.getElectricField();
         	   
         	   //Calcul du pot en M
-        	   //p.calculPotentiel(p.getA(), p.getB(), p.getM());
+        	   p.calculPotentiel(p.getA(), p.getB(), p.getM());
         	   plus = Field.getElectricFieldPlus();
         	   minus = Field.getElectricFieldMinus();
-        	   //System.out.println("Le potentiel en M est: "+p.getV());
+        	   System.out.println("Le potentiel en M est: "+p.getV());
         	   
         	   // Setters de Drawing
         	   panelDrawing.setMode("Clas");
@@ -319,85 +368,109 @@ public class Control extends JPanel {
        		   panPara.setVisible(true);
         	   panelDrawing.repaint();
         	   
-
-               Modifier.setEnabled(true);
-               Valider.setEnabled(false);
-               xtextA.setEnabled(false);
-               xtextB.setEnabled(false);
-               xtextM.setEnabled(false);
-               ytextA.setEnabled(false);
-               ytextB.setEnabled(false);
-               ytextM.setEnabled(false);
-               qtextA.setEnabled(false);
-               qtextB.setEnabled(false);
+               Para.setEnabled(true);
+               Para.doClick();
            }
          
             });
         
-     // Action de Modifier
-        Modifier.addActionListener((ActionEvent evt) -> {
-
-        	Modifier.setEnabled(false);
-            Valider.setEnabled(true);
-            xtextA.setEnabled(true);
-            xtextB.setEnabled(true);
-            xtextM.setEnabled(true);
-            ytextA.setEnabled(true);
-            ytextB.setEnabled(true);
-            ytextM.setEnabled(true);
-            qtextA.setEnabled(true);
-            qtextB.setEnabled(true);
-            });
     }
+    boolean Gradientselected=false;
+    boolean Champselected=false;
+    boolean Equipoteselected=false;
     
     private void genPanPara() {
     	panPara.setLayout(new BoxLayout(panPara, BoxLayout.Y_AXIS));
+    	JPanel labelWrapper = new JPanel();
     	JLabel label = new JLabel("Options d'Affichage", SwingConstants.CENTER);
-    	label.setBorder(BorderFactory.createLineBorder(Color.black, 2));
-    	panPara.add(label, BorderLayout.CENTER);
+    	label.setBackground(Color.BLACK);
+    	label.setOpaque(true);
+    	label.setForeground(Color.WHITE);
+    	labelWrapper.add(label);
+    	panPara.add(labelWrapper);
     	
     	JPanel Button = new JPanel();
-    	Button.setLayout(new GridLayout(0,1));
+    	Button.setLayout(new BoxLayout(Button, BoxLayout.Y_AXIS));
+    	Button.setAlignmentX(Component.CENTER_ALIGNMENT);
     	JRadioButton Gradient = new JRadioButton("Gradient");
         JRadioButton Champ = new JRadioButton("Champ Electrique");
         JRadioButton Equipote = new JRadioButton("Equipotentiel");
-        ButtonGroup SelecButton = new ButtonGroup();
-        SelecButton.add(Gradient);
-        SelecButton.add(Champ);
-        SelecButton.add(Equipote);
         Button.add(Gradient);
         Button.add(Champ);
         Button.add(Equipote);
-        panPara.add(Button, BorderLayout.CENTER);
+        Button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        panPara.add(Button);
+        
         JPanel panGradient = new JPanel();
         JPanel panChamp = new JPanel();
         JPanel panEquipote = new JPanel();
         panGradient.setVisible(false);
     	panChamp.setVisible(false);
     	panEquipote.setVisible(false);
+    	
+    	// Listener
+    	ChangeListener GradientselectedListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				AbstractButton aButton = (AbstractButton)e.getSource();
+    	        ButtonModel aModel = aButton.getModel();
+    	        Gradientselected = aModel.isSelected();
+			}
+    	    };
+    	Gradient.addChangeListener(GradientselectedListener);
+    	ChangeListener ChampselectedListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				AbstractButton aButton = (AbstractButton)e.getSource();
+    	        ButtonModel aModel = aButton.getModel();
+    	        Champselected = aModel.isSelected();
+			}
+    	    };
+    	Champ.addChangeListener(ChampselectedListener);
+    	ChangeListener EquipoteselectedListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				AbstractButton aButton = (AbstractButton)e.getSource();
+    	        ButtonModel aModel = aButton.getModel();
+    	        Equipoteselected = aModel.isSelected();
+			}
+    	    };
+        Equipote.addChangeListener(EquipoteselectedListener);
+        
         Gradient.addActionListener((ActionEvent evt) -> {
-        	panGradient.setVisible(true);
-        	panChamp.setVisible(false);
-        	panEquipote.setVisible(false);
+        	panGradient.setVisible(Gradientselected);
+            panChamp.setVisible(Champselected);
+        	panEquipote.setVisible(Equipoteselected);
             });
         Champ.addActionListener((ActionEvent evt) -> {
-        	panGradient.setVisible(false);
-        	panChamp.setVisible(true);
-        	panEquipote.setVisible(false);
+        	panGradient.setVisible(Gradientselected);
+            panChamp.setVisible(Champselected);
+        	panEquipote.setVisible(Equipoteselected);
             });
         Equipote.addActionListener((ActionEvent evt) -> {
-        	panGradient.setVisible(false);
-        	panChamp.setVisible(false);
-        	panEquipote.setVisible(true);
+        	panGradient.setVisible(Gradientselected);
+            panChamp.setVisible(Champselected);
+        	panEquipote.setVisible(Equipoteselected);
             });
         
     	// Gradient
-        panGradient.add(new JLabel("Nombre de Couleurs :"));
         panGradient.setLayout(new GridLayout(0,1));
+        JPanel labelWrapperGradient = new JPanel();
+    	JLabel labelGradient = new JLabel("Gradient", SwingConstants.CENTER);
+    	labelGradient.setBackground(Color.BLACK);
+    	labelGradient.setOpaque(true);
+    	labelGradient.setForeground(Color.WHITE);
+    	labelWrapperGradient.add(labelGradient);
+    	panGradient.add(labelWrapperGradient);
+    	JPanel panGradient1 = new JPanel();
+        panGradient1.add(new JLabel("Nombre de Couleurs :"));
     	JFormattedTextField nbrColor = new JFormattedTextField() ;
-    	nbrColor.setColumns(4);
+    	nbrColor.setBackground(getBackground());
+    	nbrColor.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+    	nbrColor.setHorizontalAlignment(JTextField.CENTER);
     	nbrColor.setText("25");
-    	panGradient.add(nbrColor);
+    	nbrColor.setColumns(3);
+    	panGradient1.add(nbrColor);
     	JButton ValiderNbrColor = new JButton("Valider"); 
     	ValiderNbrColor.addActionListener((ActionEvent evt) -> {
         	boolean pass = true;
@@ -407,13 +480,14 @@ public class Control extends JPanel {
         		nbrColor.setText("25");
         		System.out.println("le xmax est non conforme");}
         	if (pass) {
-        		panelDrawing.setNbrColor(25);
+        		panelDrawing.setNbrColor((int)Double.parseDouble(nbrColor.getText()));
          	    panelDrawing.setPot(pot, plus, minus);
         		panelDrawing.setMode("Grad");
         		panelDrawing.repaint();
         	}
         	
             });
+    	panGradient.add(panGradient1);
     	panGradient.add(ValiderNbrColor);
     	panPara.add(panGradient);
     	

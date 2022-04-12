@@ -1,6 +1,8 @@
 package GUI;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+
 import javax.swing.JPanel;
 
 import Business.Particule;
@@ -11,7 +13,12 @@ public class MyPanel extends JPanel {
 	 Potentiel p;
  	 Particule A,B;
  	 Point M;
- 	 
+
+     Status panelStatus;
+     static Control panelControl;
+     Help panelHelp;
+     Drawing panelDrawing;
+     
 	 public MyPanel() {
 	        this.setLayout(new BorderLayout());  
 	        A = new Particule("A");
@@ -19,10 +26,10 @@ public class MyPanel extends JPanel {
 	        M = new Point("M");
 	        p = new Potentiel("Potentiel", A, B ,M);
 	        
-	        Status panelStatus = new Status();
-	        Control panelControl = new Control(p);
-	        Help panelHelp = new Help();
-	        Drawing panelDrawing = new Drawing(p);
+	        panelStatus = new Status();
+	        panelControl = new Control(p);
+	        panelHelp = new Help();
+	        panelDrawing = new Drawing(p);
 	        
 	        
 	        this.add(panelStatus, BorderLayout.SOUTH);
@@ -33,6 +40,9 @@ public class MyPanel extends JPanel {
 	        panelControl.setpanelDrawing(panelDrawing);
 	        panelControl.setpanelStatus(panelStatus);
 	        panelControl.setpanelHelp(panelHelp);
-	    }   
+	    }  
+	 public static void setControlDimension(Dimension size) {
+		 panelControl.setMaximumSize(size);;
+	 }
 }
  

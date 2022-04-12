@@ -141,15 +141,18 @@ public class Drawing extends JPanel implements MouseListener{
     			g2.drawLine(j, i, 1, 1);
     		}
         }
-    	for (int x=1; x<=nbrColor; x++) {
-    		double h = ((double)x)*0.67/((double)nbrColor);
+    	int nbrColorMax = 50;
+    	if (nbrColor<=50) nbrColorMax=nbrColor;
+    	for (int x=1; x<=nbrColorMax; x++) {
+    		double h = ((double)x)*0.80/((double)nbrColorMax);
     		g2.setColor(Color.getHSBColor((float) h, 1, 1));
-    		g2.fillRect(width-230-(int)(200/(double)nbrColor)+(int)((double)(x*200)/(double)nbrColor), height-40, (int)(200/(double)nbrColor), 25);
+    		g2.fillRect(width-230-(int)(200/(double)nbrColorMax)+(int)((double)(x*200)/(double)nbrColorMax), height-40, (int)(200/(double)nbrColorMax), 25);
     	}
     	g2.setColor(Color.BLACK);
     	g2.drawRect(width-230, height-40, 200, 25);
     	FontMetrics metrics = g2.getFontMetrics();
     	g2.setColor(Color.BLACK);
+    	System.out.println("plus");
     	g2.drawString(Double.toString((int)minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
     	g2.drawString(Double.toString((int)plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
     	

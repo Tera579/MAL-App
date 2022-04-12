@@ -11,10 +11,18 @@ public class ColorGradient {
 	//}
 	public static Color getColorGradient(double p, double plus, double minus, int nbrColor) {
 	//HSB 
-		ratio = Math.abs((Math.log10(Math.abs(p))+2) / (Math.log10(Math.abs(minus))+2));
-		if (p<=0) c = Color.getHSBColor((float) (((double)(((int)((0.335-0.335*ratio)*nbrColor))))/nbrColor), 1, 1);
-		else c = Color.getHSBColor((float) (((double)(((int)((0.335+0.335*ratio)*nbrColor))))/nbrColor), 1, 1);
-		if (p==0.0) c = Color.getHSBColor((float) 0.35, 1, 1);
+		if (minus==0) minus=0.01;
+		if (plus==0) plus=0.01;
+		
+		if (p<=0) {
+			ratio = Math.abs((Math.log10(Math.abs(p))+2) / (Math.log10(Math.abs(minus))+2));
+			c = Color.getHSBColor((float) (((double)(((int)((0.4-0.4*ratio)*nbrColor))))/nbrColor), 1, 1);
+		}
+		else {
+			ratio = Math.abs((Math.log10(Math.abs(p))+2) / (Math.log10(Math.abs(plus))+2));
+			c = Color.getHSBColor((float) (((double)(((int)((0.4+0.5*ratio)*nbrColor))))/nbrColor), 1, 1);
+		}
+		if (p==0.0) c = Color.getHSBColor((float) 0.4, 1, 1);
 		return c;
 	}
 }
