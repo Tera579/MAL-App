@@ -22,6 +22,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 public class Drawing extends JPanel implements MouseListener{
 	
@@ -152,9 +153,10 @@ public class Drawing extends JPanel implements MouseListener{
     	g2.drawRect(width-230, height-40, 200, 25);
     	FontMetrics metrics = g2.getFontMetrics();
     	g2.setColor(Color.BLACK);
-    	System.out.println("plus");
-    	g2.drawString(Double.toString((int)minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
-    	g2.drawString(Double.toString((int)plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
+    	if (minus<9999) minus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(minus))));
+    	if (plus>9999) plus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(plus))));
+    	g2.drawString(Double.toString(minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
+    	g2.drawString(Double.toString(plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
     	
     }
     /**
