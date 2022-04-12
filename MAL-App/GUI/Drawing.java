@@ -5,54 +5,55 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 
+import javax.imageio.ImageIO;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
-import Business.Conversion;
-import Business.Particule;
-import Business.Point;
-import Business.Potentiel;
+import Business.*;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
-public class Drawing extends JPanel{
+public class Drawing extends JPanel implements MouseListener{
 	
 	private Potentiel p;
 	
     public Drawing(Potentiel p) {
         this.p = p;
         JLabel board = new JLabel();
+
         board.setForeground(Color.BLACK);
 
         this.setPreferredSize(new Dimension(400, 180));
         this.setBackground(Color.WHITE);
         this.add(board);
+        addMouseListener(this);
 
     }
     
 
-    private int oX;
-    private int oY;
     private static int width;
     private static int height;
-    
-    private final int xmin = -150;
-    private final int xmax = 150;
-    private final int ymin = -150;
-    private final int ymax = 150;
 
-    private final int aX = 10;
-    private final int bX = 10;
-    private final int aY = 5;
-    private final int bY = 5;
-    private double echX = 40;
-    private double echY = 40;
+    private double xmax;
     
     private Graphics2D g2;
-    private boolean start = false;
+    private String mode="Zero";
 	private double[][] pot;
-	private String mode;
+	private double minus;
+	private double plus;
+	private int nbrColor;
+	private int grad;
+	private int ech;
 
     /**
      * La méthode paintComponent() est appelée automatiquement par le système
@@ -73,8 +74,6 @@ public class Drawing extends JPanel{
          * met à jour la position de l'origine dans l'hypothèse où la géométrie
          * de la fenêtre aurait changé
          */
-        oX = this.getWidth() / 2;
-        oY = this.getHeight() / 2;
         width = this.getWidth();
         height = this.getHeight();
         
@@ -84,17 +83,37 @@ public class Drawing extends JPanel{
 
         g2.setBackground(Color.WHITE);
         g2.clearRect(0, 0, width, height);
-        
-        if (start) {
-        	gradient();
-        	traceA();
-        	traceB();
-        	traceM();
-        	traceAxes();
+        switch (mode){
+        	case "Zero":
+        		BufferedImage image=null;
+        		try {
+        			image = ImageIO.read(new File("photo.png"));
+    			} catch (IOException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+            	g2.drawImage(image, 0, 0, width, height, null);
+        		break;
+        	case "Axes":
+            	traceAxes();
+            	break;
+        	case "Clas":
+        		traceA();
+            	traceB();
+            	traceM();
+            	traceAxes();
+            	break;
+        	case "Grad":
+        		gradient();
+        		traceA();
+            	traceB();
+            	traceM();
+            	traceAxes();
+        		break;
+        	default:
+        		
         }
-        else traceAxes();
-        
-        }
+    }
     public void traceA() {
     	g2.setColor(Color.BLACK);
     	g2.drawOval(Conversion.doublepixelX(p.getA().getPoint().getX())-3, Conversion.doublepixelY(p.getA().getPoint().getY())-3, 6, 6);
@@ -115,62 +134,71 @@ public class Drawing extends JPanel{
     public void gradient() {
     	int i,j;
     	Color c=null;
-    	if (mode=="grad") {
-    		
-    		for (i = 0; i < height; i++) {
-    			for (j = 0; j < width; j++) {
-    				if (pot[i][j]<0) {
-    					c = new Color(255,0,0);
-    					g2.setColor(c);
-    				}
-    				else {
-    					c = new Color(0,0,255);
-    					g2.setColor(c);
-    				}
-    				g2.drawLine(j, i, j, i);
-    			}
+    	for (i = height-1; i >=0; i--) {
+    		for (j = width-1; j >= 0; j--) {
+    			c = ColorGradient.getColorGradient(pot[i][j], plus, minus, nbrColor);
+    			g2.setColor(c);
+    			g2.drawLine(j, i, 1, 1);
     		}
         }
+    	for (int x=1; x<=nbrColor; x++) {
+    		double h = ((double)x)*0.67/((double)nbrColor);
+    		g2.setColor(Color.getHSBColor((float) h, 1, 1));
+    		g2.fillRect(width-230-(int)(200/(double)nbrColor)+(int)((double)(x*200)/(double)nbrColor), height-40, (int)(200/(double)nbrColor), 25);
+    	}
+    	g2.setColor(Color.BLACK);
+    	g2.drawRect(width-230, height-40, 200, 25);
+    	FontMetrics metrics = g2.getFontMetrics();
+    	g2.setColor(Color.BLACK);
+    	g2.drawString(Double.toString((int)minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
+    	g2.drawString(Double.toString((int)plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
     	
     }
     /**
      * Trace les Axes et les graduations
      */
     public void traceAxes() {
-
         g2.setColor(Color.BLACK);
 
         // tracer axe Horizontal
-        g2.drawLine(aX, oY, width - bX, oY);
-        g2.drawLine(width - aX, oY, width - bX - 8, oY - 4);
-        g2.drawLine(width - aX, oY, width - bX - 8, oY + 4);
+        g2.drawLine(10, height/2, width - 10, height/2);
+        g2.drawLine(width - 10, height/2, width - 10 - 8, height/2 - 4);
+        g2.drawLine(width - 10, height/2, width - 10 - 8, height/2 + 4);
         // tracer axe Vertical
-        g2.drawLine(oX, width - aY, oX, bY);
-        g2.drawLine(oX, aY, oX - 4, bY + 8);
-        g2.drawLine(oX, aY, oX + 4, bY + 8);
+        g2.drawLine(width/2, height - 5, width/2, 5);
+        g2.drawLine(width/2, 5, width/2 - 4, 5 + 8);
+        g2.drawLine(width/2, 5, width/2 + 4, 5 + 8);
 
         /**
          * tracer des graduations horizontales
          */
-        for (double x = xmin; x <= xmax; x = x + 1) {
-    			int xe = (int) (x * echX + oX);
-    			g2.drawLine(xe, oY, xe, oY + 4);
+        for (double x = 0; x <= xmax; x=x+grad) {
+    			int xe = (int) (x * ech + width/2);
+    			g2.drawLine(width - xe, height/2, width - xe, height/2 + 4);
+    			g2.drawLine(xe, height/2, xe, height/2 + 4);
         		FontMetrics fontMetrics = g2.getFontMetrics();
-        		String textx = String.format("%.0f", x);
-        		if (x!=0) g2.drawString(textx, xe +5 - fontMetrics.stringWidth(textx), oY + 20);
-        		else g2.drawString(textx, oX - 10 - fontMetrics.stringWidth(textx), oY + 20);
+        		String textxp = String.format("%.0f", x);
+        		String textxn = String.format("%.0f", -x);
+        		if (x!=0) {
+        			g2.drawString(textxp, xe+5 - fontMetrics.stringWidth(textxp), height/2 + 20);
+        			g2.drawString(textxn, width - xe+5 - fontMetrics.stringWidth(textxn), height/2 + 20);
+        		}
+        		else g2.drawString(textxp, width/2 - 10 - fontMetrics.stringWidth(textxp), height/2 + 20);
         }
 
         /**
          * tracer des graduations verticales
          */
-        for (double y = ymin; y <= ymax; y = y + 1) {
+        for (double y = 0; y <= xmax; y=y+grad) {
         	if (y!=0) {
-        		int ye = (int) (-y * echY + oY);
-        		g2.drawLine(oX, ye, oX - 4, ye);
+        		int ye = (int) (y * ech + height/2);
+        		g2.drawLine(width/2, height - ye, width/2 - 4, height - ye);
+        		g2.drawLine(width/2, ye, width/2 - 4, ye);
         		FontMetrics fontMetrics = g2.getFontMetrics();
-        		String texty = String.format("%.0f", y);
-        		g2.drawString(texty, oX - 10 - fontMetrics.stringWidth(texty), +ye+5);
+        		String textyp = String.format("%.0f", y);
+        		String textyn = String.format("%.0f", -y);
+        		g2.drawString(textyn, width/2 - 10 - fontMetrics.stringWidth(textyn), ye+5);
+        		g2.drawString(textyp, width/2 - 10 - fontMetrics.stringWidth(textyp), height - ye+5);
         	}
         }
     }
@@ -180,9 +208,46 @@ public class Drawing extends JPanel{
     public static int getHeightDrawing(){
         return height;
     }
-    public void start(double[][] pot, String mode) {
-    	this.mode = mode;
-    	start = true;
-    	this.pot = pot;
+    public void setEch(int ech, int xmax, int grad) {
+    	this.ech = ech;
+    	this.xmax = xmax;
+    	this.grad = grad;
     }
+    public void setMode(String mode) {
+    	this.mode = mode;
+    }
+    public void setNbrColor(int nbrColor) {
+    	this.nbrColor = nbrColor;
+    }
+    public void setPot(double[][] pot, double plus, double minus) {
+    	this.pot = pot;
+    	this.plus = plus;
+    	this.minus = minus;
+    }
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		int x = e.getX();
+		int y = e.getY();
+		System.out.println("x="+x+" y="+y);
+	}
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 }

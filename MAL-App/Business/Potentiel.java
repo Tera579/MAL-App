@@ -30,7 +30,7 @@ public class Potentiel {
         double qa = this.a.q;
         double qb = this.b.q;
         double c = (double) 1 / (4 * Math.PI * 8.85419782e-12);
-        v =  (c * (qa / 10*da + qb / db));
+        v =  ((double)((int)((c * (qa / da + qb / db))*100)))/100;
     }
     
     public double getV() {
