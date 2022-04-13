@@ -1,13 +1,7 @@
 package Business;
 
 import GUI.Drawing;
-import Business.Conversion;
-import Business.Potentiel;
 
-/**
- *
- * @author Elève
- */
 public class ElectricField {
 	
 	int larg = Drawing.getWidthDrawing();

@@ -1,22 +1,19 @@
 package GUI;
 
-import java.awt.Dimension;
 import javax.swing.JFrame;
 
-import GUI.MyPanel;
-
 public class MyFrame extends JFrame{
+	 private static final long serialVersionUID = 1L;
+
 	 public MyFrame() {
 	        super() ;
-	        this.setTitle("Générateur de signaux - Version 08 ...");
+	        this.setTitle("MAL-App project");
 	        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	        this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 	        //this.setUndecorated(true);
 
 	        this.add(new MyPanel());
-	        
 	        this.pack();
 	        this.setVisible(true);
 	    }
-	    
 }

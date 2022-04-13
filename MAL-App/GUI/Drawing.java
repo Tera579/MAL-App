@@ -1,96 +1,72 @@
 package GUI;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FontMetrics;
 
 import javax.imageio.ImageIO;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import Business.*;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 
 public class Drawing extends JPanel implements MouseListener{
 	
-	private Potentiel p;
-	
-    public Drawing(Potentiel p) {
-        this.p = p;
-        JLabel board = new JLabel();
+	private static final long serialVersionUID = 1L;
 
-        board.setForeground(Color.BLACK);
-
-        this.setPreferredSize(new Dimension(400, 180));
-        this.setBackground(Color.WHITE);
-        this.add(board);
-        addMouseListener(this);
-
-    }
+	// Constucteur
+    private Potentiel p;
     
-
+    // Graphique
     private static int width;
     private static int height;
-
-    private double xmax;
-    
     private Graphics2D g2;
+    
+    // Selection du mode
     private String mode="Zero";
+    
+    // Selection de l'echelle
+    private double xmax;
+    private int grad;
+	private int ech;
+	
+	// Gradient
 	private double[][] pot;
 	private double minus;
 	private double plus;
 	private int nbrColor;
-	private int grad;
-	private int ech;
-
-    /**
-     * La méthode paintComponent() est appelée automatiquement par le système
-     * graphique de Java pour mettre à jour le panneau Graphics est la classe de
-     * l'objet tr qui hérite de Graphics et Graphics2D est une classe qui hérite
-     * de Graphics et qui intègre des méthodes de dessin supplémentaire
-     *
-     * @param g objet
-     */
-    @Override
+	
+	// Constructeur de Drawing
+    public Drawing(Potentiel p) {
+        this.p = p;
+        this.setBackground(Color.WHITE);
+        addMouseListener(this);
+    }   
     
+    // Lance les differentes methodes graphique
+    @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        
+        // Definition des variables Graphique
         g2 = (Graphics2D) g;
-
-        /**
-         * met à jour la position de l'origine dans l'hypothèse où la géométrie
-         * de la fenêtre aurait changé
-         */
         width = this.getWidth();
         height = this.getHeight();
         
-        // les deux lignes suivantes passent le fond du panenau en noir
-        g2.setBackground(Color.WHITE);
-        g2.clearRect(0, 0, width, height);
-
-        g2.setBackground(Color.WHITE);
-        g2.clearRect(0, 0, width, height);
+        // Selection du mode (definit par Control)
         switch (mode){
         	case "Zero":
+        		// Image de base sur le panneau Drawing
         		BufferedImage image=null;
         		try {
         			image = ImageIO.read(new File("photo.png"));
     			} catch (IOException e) {
-    				// TODO Auto-generated catch block
     				e.printStackTrace();
     			}
             	g2.drawImage(image, 0, 0, width, height, null);
@@ -112,26 +88,27 @@ public class Drawing extends JPanel implements MouseListener{
             	traceAxes();
         		break;
         	default:
-        		
         }
     }
+    
+    // Trace les points
     public void traceA() {
     	g2.setColor(Color.BLACK);
     	g2.drawOval(Conversion.doublepixelX(p.getA().getPoint().getX())-3, Conversion.doublepixelY(p.getA().getPoint().getY())-3, 6, 6);
         g2.drawString(p.getA().getPoint().getName(), Conversion.doublepixelX(p.getA().getPoint().getX())+10, Conversion.doublepixelY(p.getA().getPoint().getY())+10);
     }
-    
 	public void traceB() {
 		g2.setColor(Color.BLACK);
 		g2.drawOval(Conversion.doublepixelX(p.getB().getPoint().getX())-3, Conversion.doublepixelY(p.getB().getPoint().getY())-3, 6, 6);
     	g2.drawString(p.getB().getPoint().getName(), Conversion.doublepixelX(p.getB().getPoint().getX())+10, Conversion.doublepixelY(p.getB().getPoint().getY())+10);
-	}
-
-    public void traceM() {
+	}        
+	public void traceM() {
     	g2.setColor(Color.BLACK);
     	g2.drawOval(Conversion.doublepixelX(p.getM().getX())-3, Conversion.doublepixelY(p.getM().getY())-3, 6, 6);
     	g2.drawString(p.getM().getName(), Conversion.doublepixelX(p.getM().getX())+10, Conversion.doublepixelY(p.getM().getY())+10);
     }
+    
+    // Color le graphique en fonction du potentiel
     public void gradient() {
     	int i,j;
     	Color c=null;
@@ -142,8 +119,8 @@ public class Drawing extends JPanel implements MouseListener{
     			g2.drawLine(j, i, 1, 1);
     		}
         }
-    	int nbrColorMax = 50;
-    	if (nbrColor<=50) nbrColorMax=nbrColor;
+    	int nbrColorMax = 50; // Au dessu de 50, des erreurs d'aproximation forme des lignes transparentes sur l'echelle
+    	if (nbrColor<=50) nbrColorMax = nbrColor;
     	for (int x=1; x<=nbrColorMax; x++) {
     		double h = ((double)x)*0.80/((double)nbrColorMax);
     		g2.setColor(Color.getHSBColor((float) h, 1, 1));
@@ -159,60 +136,68 @@ public class Drawing extends JPanel implements MouseListener{
     	g2.drawString(Double.toString(plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
     	
     }
-    /**
-     * Trace les Axes et les graduations
-     */
+    
+    // Trace les Axes et les graduations
     public void traceAxes() {
         g2.setColor(Color.BLACK);
 
-        // tracer axe Horizontal
+        // Trace l'axe Horizontal
         g2.drawLine(10, height/2, width - 10, height/2);
         g2.drawLine(width - 10, height/2, width - 10 - 8, height/2 - 4);
         g2.drawLine(width - 10, height/2, width - 10 - 8, height/2 + 4);
-        // tracer axe Vertical
+        
+        // Trace l'axe Vertical
         g2.drawLine(width/2, height - 5, width/2, 5);
         g2.drawLine(width/2, 5, width/2 - 4, 5 + 8);
         g2.drawLine(width/2, 5, width/2 + 4, 5 + 8);
 
-        /**
-         * tracer des graduations horizontales
-         */
+        // Trace les graduations horizontales
         for (double x = 0; x <= xmax; x=x+grad) {
     			int xe = (int) (x * ech + width/2);
     			g2.drawLine(width - xe, height/2, width - xe, height/2 + 4);
     			g2.drawLine(xe, height/2, xe, height/2 + 4);
+    			
         		FontMetrics fontMetrics = g2.getFontMetrics();
         		String textxp = String.format("%.0f", x);
         		String textxn = String.format("%.0f", -x);
-        		if (x!=0) {
-        			g2.drawString(textxp, xe+5 - fontMetrics.stringWidth(textxp), height/2 + 20);
-        			g2.drawString(textxn, width - xe+5 - fontMetrics.stringWidth(textxn), height/2 + 20);
+        		
+        		// Dessine 0 pour qu'il soit centre avec l'axe verticale
+        		if (x==0) g2.drawString(textxp, width/2 - 10 - fontMetrics.stringWidth(textxp), height/2 + 20);
+        		else {
+        			// Centre le text sur la graduation
+        			g2.drawString(textxp, xe - fontMetrics.stringWidth(textxp)/2, height/2 + 20);
+        			g2.drawString(textxn, width - xe - fontMetrics.stringWidth(textxn)/2, height/2 + 20);
         		}
-        		else g2.drawString(textxp, width/2 - 10 - fontMetrics.stringWidth(textxp), height/2 + 20);
         }
 
-        /**
-         * tracer des graduations verticales
-         */
+        // Trace les graduations verticales
         for (double y = 0; y <= xmax; y=y+grad) {
+        	// Ne dessine pas 0 (dessine precedement)
         	if (y!=0) {
         		int ye = (int) (y * ech + height/2);
         		g2.drawLine(width/2, height - ye, width/2 - 4, height - ye);
         		g2.drawLine(width/2, ye, width/2 - 4, ye);
+        		
         		FontMetrics fontMetrics = g2.getFontMetrics();
         		String textyp = String.format("%.0f", y);
-        		String textyn = String.format("%.0f", -y);
+        		String textyn = String.format("%.0f", -y)
+        				;
+        		// Centre le text à gauche de l'axe
         		g2.drawString(textyn, width/2 - 10 - fontMetrics.stringWidth(textyn), ye+5);
         		g2.drawString(textyp, width/2 - 10 - fontMetrics.stringWidth(textyp), height - ye+5);
         	}
         }
     }
+    
+    // Renvoi les Dimensions du panneau Drawing
     public static int getWidthDrawing(){
         return width;
     }
     public static int getHeightDrawing(){
         return height;
     }
+    
+    // Initialisation des variables par Control
     public void setEch(int ech, int xmax, int grad) {
     	this.ech = ech;
     	this.xmax = xmax;
@@ -222,14 +207,18 @@ public class Drawing extends JPanel implements MouseListener{
     	this.mode = mode;
     }
     public void setNbrColor(int nbrColor) {
-    	this.nbrColor = nbrColor;
+    	int nbrColorMax = nbrColor;
+    	if (nbrColor<5) nbrColorMax = 5;
+    	this.nbrColor = Math.abs(nbrColorMax);
     }
     public void setPot(double[][] pot, double plus, double minus) {
     	this.pot = pot;
     	this.plus = plus;
     	this.minus = minus;
     }
-	@Override
+	
+    // Methodes de MouseListener
+    @Override
 	public void mouseClicked(MouseEvent e) {
 		int x = e.getX();
 		int y = e.getY();

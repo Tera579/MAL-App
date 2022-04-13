@@ -10,7 +10,7 @@ public class Main {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                MyFrame firstFrame = new MyFrame();
+                new MyFrame();
             }
         });
 	}  

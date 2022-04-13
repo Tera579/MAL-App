@@ -1,29 +1,9 @@
 package GUI;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
 
-import javax.swing.AbstractButton;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -32,29 +12,38 @@ import Business.*;
 
 
 public class Control extends JPanel {
-    
-    private static JButton Valider;
-    
+    private static final long serialVersionUID = 1L;
+	// Instance des differents panneaux
     private static Drawing panelDrawing;
     private static Status panelStatus;
     private static Help panelHelp;
     
+    // Constucteur
     private Potentiel p;
+    
+    // Stockage du potentiel en chaques points
     private double[][] pot;
     double plus, minus;
     
+    // Mise en commun des panneaux et des JRadioButton entre les methodes
     JPanel panEch;
     JPanel panPoint;
     JPanel panPara;
-    
     JRadioButton Graph;
     JRadioButton Point;
     JRadioButton Para;
     
+    // Variables d'etat utilises par PanPara
+    boolean Gradientselected=false;
+    boolean Champselected=false;
+    boolean Equipoteselected=false;
+    
+    // Constructeur de Control
     public Control(Potentiel p) {
-    	this.setPreferredSize(new Dimension(200,180));
     	this.p =p;
+    	this.setPreferredSize(new Dimension(200,180));
     	
+    	// Instanciement des panneaux
     	panEch = new JPanel();
         panPoint = new JPanel();
         panPara = new JPanel();
@@ -67,11 +56,13 @@ public class Control extends JPanel {
         panPoint.setVisible(false);
         panPara.setVisible(false);
         
-        // Selection
+        // Selection de la page
         JPanel Selec = new JPanel();
         Graph = new JRadioButton();
         Point = new JRadioButton();
         Para = new JRadioButton();
+        
+        // Creation et ajout d'un groupe de JRadioButton pour en selectioner un a la fois
         ButtonGroup SelecButton = new ButtonGroup();
         SelecButton.add(Graph);
         SelecButton.add(Point);
@@ -80,12 +71,22 @@ public class Control extends JPanel {
         Selec.add(Point);
         Selec.add(Para);
         this.add(Selec);
-        Graph.doClick();
+        
+        // Evite les cercles bleus de focus
         Graph.setFocusable(false);
         Point.setFocusable(false);
         Para.setFocusable(false);
+        
+        // Active la fenetre Graph de base
+        Graph.doClick();
+        
+        /* Desactive les JRadioButton Point et Para. Pour ne pas causer d'erreur de programme, 
+         * il faut d'abord selectionner l'echelle puis les points et enfin les parametres graphiques.
+         */
         Point.setEnabled(false);
         Para.setEnabled(false);
+        
+        // Listeners des JRadioButton
         Graph.addActionListener((ActionEvent evt) -> {
         	panEch.setVisible(true);
             panPoint.setVisible(false);
@@ -110,8 +111,12 @@ public class Control extends JPanel {
         this.add(panPara);
         
     }
+    
+    // Creation de la page 1 : Choix de l'echelle
     private void genPanEch() {
     	panEch.setLayout(new GridLayout(0,1));
+    	
+    	// Text "Paramètres Graphique"
     	JPanel labelWrapper = new JPanel();
     	JLabel label = new JLabel("Paramètres Graphique", SwingConstants.CENTER);
     	label.setBackground(Color.BLACK);
@@ -144,9 +149,11 @@ public class Control extends JPanel {
     	// Bouton Valider
         JButton Valider = new JButton("Valider"); 
         
-        
+        // Listener de Valider
         Valider.addActionListener((ActionEvent evt) -> {
         	boolean pass = true;
+        	
+        	// Vérifier si les valeurs saisies sont conformes
         	try{Double.parseDouble(gradtext.getText());}
         	catch(NumberFormatException a){
         		pass=false;
@@ -157,18 +164,22 @@ public class Control extends JPanel {
         		pass=false;
         		xmaxtext.setText("15");
         		System.out.println("l'echelle est non conforme");}
+        	
+        	// Action effectue si les valeurs sont conformes
         	if (pass) {
         		double graddouble = Double.parseDouble(gradtext.getText());
         		double xmaxdouble = Double.parseDouble(xmaxtext.getText());
         		int realEch = (int)((panelDrawing.getWidth()-40)/(2*xmaxdouble));
+        		
+        		// Setters de Drawing et de Conversion
         		panelDrawing.setEch(realEch, (int)xmaxdouble, (int)graddouble);
         		Conversion.setEch(realEch);
         		panelDrawing.setMode("Axes");
         		panelDrawing.repaint();
-        		panPoint.setVisible(true);
-        		panEch.setVisible(false);
+        		
+        		// Reactive le JRadioButton de la 2e page et change de page
         		Point.setEnabled(true);
-        		Point.doClick();
+        		panEch.setVisible(false);
         		Point.doClick();
         	}
         	
@@ -179,8 +190,11 @@ public class Control extends JPanel {
         panEch.add(Valider);
     }
     
+    // Creation de la page 2 : Choix des points
     private void genPanPoint() {
     	panPoint.setLayout(new GridLayout(0,1));
+    	
+    	// Texte "Coordonées des Points"
     	JPanel labelWrapper = new JPanel();
     	JLabel label = new JLabel("Coordonées des Points", SwingConstants.CENTER);
     	label.setBackground(Color.BLACK);
@@ -333,8 +347,9 @@ public class Control extends JPanel {
         		qtextB.setText(""+p.getA().getQ());
         		System.out.println("la charge de B est non conforme");}
             
-            
+           // Action effectue si les valeurs sont conformes
            if (pass) {
+        	   // Conversion des valeurs saisies en double
         	   double qA= ((double)(int)(Double.parseDouble(qtextA.getText())*100))/100;
         	   double xA= ((double)(int)(Double.parseDouble(xtextA.getText())*100))/100;
         	   double yA= ((double)(int)(Double.parseDouble(ytextA.getText())*100))/100;
@@ -344,6 +359,7 @@ public class Control extends JPanel {
         	   double xM= ((double)(int)(Double.parseDouble(xtextM.getText())*100))/100;
         	   double yM= ((double)(int)(Double.parseDouble(ytextM.getText())*100))/100;
         	   
+        	   // Enregistrement des valeurs saisies dans A,B et M
         	   p.getA().setQ(qA*1e-9);
         	   p.getA().getPoint().setX(xA);
         	   p.getA().getPoint().setY(yA);
@@ -353,21 +369,22 @@ public class Control extends JPanel {
         	   p.getM().setX(xM);
         	   p.getM().setY(yM);
         	   
+        	   // Calcul du champ electrique (utilise pour le gradient)
         	   ElectricField Field = new ElectricField(p);
         	   pot = Field.getElectricField();
+        	   plus = Field.getElectricFieldPlus();
+        	   minus = Field.getElectricFieldMinus();
         	   
         	   //Calcul du pot en M
         	   p.calculPotentiel(p.getA(), p.getB(), p.getM());
-        	   plus = Field.getElectricFieldPlus();
-        	   minus = Field.getElectricFieldMinus();
         	   System.out.println("Le potentiel en M est: "+p.getV());
         	   
         	   // Setters de Drawing
         	   panelDrawing.setMode("Clas");
-        	   panPoint.setVisible(false);
-       		   panPara.setVisible(true);
         	   panelDrawing.repaint();
         	   
+        	   // Reactive le JRadioButton de la 3e page et changement de page
+        	   panPoint.setVisible(false);
                Para.setEnabled(true);
                Para.doClick();
            }
@@ -375,12 +392,12 @@ public class Control extends JPanel {
             });
         
     }
-    boolean Gradientselected=false;
-    boolean Champselected=false;
-    boolean Equipoteselected=false;
-    
+
+    // Creation de la page 3 : Choix des parametres graphiques
     private void genPanPara() {
     	panPara.setLayout(new BoxLayout(panPara, BoxLayout.Y_AXIS));
+    	
+    	// Texte "Options d'Affichage"
     	JPanel labelWrapper = new JPanel();
     	JLabel label = new JLabel("Options d'Affichage", SwingConstants.CENTER);
     	label.setBackground(Color.BLACK);
@@ -389,6 +406,7 @@ public class Control extends JPanel {
     	labelWrapper.add(label);
     	panPara.add(labelWrapper);
     	
+    	// Groupe de JRadioButton (choix des parametres)
     	JPanel Button = new JPanel();
     	Button.setLayout(new BoxLayout(Button, BoxLayout.Y_AXIS));
     	Button.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -401,6 +419,7 @@ public class Control extends JPanel {
         Button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panPara.add(Button);
         
+        // Creation des sous-panneaux de parametre
         JPanel panGradient = new JPanel();
         JPanel panChamp = new JPanel();
         JPanel panEquipote = new JPanel();
@@ -408,7 +427,7 @@ public class Control extends JPanel {
     	panChamp.setVisible(false);
     	panEquipote.setVisible(false);
     	
-    	// Listener
+    	// Listener des JRadioButton
     	ChangeListener GradientselectedListener = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -453,8 +472,10 @@ public class Control extends JPanel {
         	panEquipote.setVisible(Equipoteselected);
             });
         
-    	// Gradient
+    	// Sous-panneau Gradient
         panGradient.setLayout(new GridLayout(0,1));
+        
+        // Texte "Gradient"
         JPanel labelWrapperGradient = new JPanel();
     	JLabel labelGradient = new JLabel("Gradient", SwingConstants.CENTER);
     	labelGradient.setBackground(Color.BLACK);
@@ -462,6 +483,8 @@ public class Control extends JPanel {
     	labelGradient.setForeground(Color.WHITE);
     	labelWrapperGradient.add(labelGradient);
     	panGradient.add(labelWrapperGradient);
+    	
+    	// Text "Nombre de Couleurs" et de la zone de saisie associé
     	JPanel panGradient1 = new JPanel();
         panGradient1.add(new JLabel("Nombre de Couleurs :"));
     	JFormattedTextField nbrColor = new JFormattedTextField() ;
@@ -471,14 +494,22 @@ public class Control extends JPanel {
     	nbrColor.setText("25");
     	nbrColor.setColumns(3);
     	panGradient1.add(nbrColor);
+    	
+    	// JButton ValiderNbrColor
     	JButton ValiderNbrColor = new JButton("Valider"); 
+    	
+    	// Listener de ValiderNbrColor
     	ValiderNbrColor.addActionListener((ActionEvent evt) -> {
         	boolean pass = true;
+        	
+        	// Vérifier si les valeurs saisies sont conformes
         	try{Double.parseDouble(nbrColor.getText());}
         	catch(NumberFormatException a){
         		pass=false;
         		nbrColor.setText("25");
         		System.out.println("le xmax est non conforme");}
+        	
+        	// Action effectue si les valeurs sont conformes
         	if (pass) {
         		panelDrawing.setNbrColor((int)Double.parseDouble(nbrColor.getText()));
          	    panelDrawing.setPot(pot, plus, minus);
@@ -491,11 +522,12 @@ public class Control extends JPanel {
     	panGradient.add(ValiderNbrColor);
     	panPara.add(panGradient);
     	
-    	// Champ
+    	// Sous-panneau Champ
     	
-    	// Equipote
+    	// Sous-panneau Equipote
     }
     
+    // Instancie les differents panneaux (par MyPanel)
     public void setpanelDrawing(Drawing panelDrawing) {
         Control.panelDrawing = panelDrawing;
     }

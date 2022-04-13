@@ -9,21 +9,18 @@ import javax.swing.border.Border;
 
 public class Help extends JPanel {
     
-    private JLabel textHelp ;
+    private static final long serialVersionUID = 1L;
+	private JLabel textHelp ;
     
     public Help() {
         super();
-
         textHelp = new JLabel("Help Panel") ;
-
         Border lineborder = BorderFactory.createLineBorder(Color.BLACK, 1);     
         this.setBorder(lineborder);
-
         this.setPreferredSize(new Dimension(150,30));
-
         this.add(textHelp);                
     }   
-
+    
     public void setText(String text) {
         textHelp.setText(text); 
     }
