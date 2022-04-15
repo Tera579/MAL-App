@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.FontMetrics;
 
 import javax.imageio.ImageIO;
@@ -11,7 +12,6 @@ import Business.*;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -28,6 +28,7 @@ public class Drawing extends JPanel implements MouseMotionListener{
     private static int width;
     private static int height;
     private Graphics2D g2;
+    private BufferedImage image;
     
     // Selection du mode
     private String mode="Zero";
@@ -42,7 +43,6 @@ public class Drawing extends JPanel implements MouseMotionListener{
 	private double minus;
 	private double plus;
 	private int nbrColor;
-	private boolean GradPainted;
 	
 	// Coordonnees du cursor
 	int x,y;
@@ -66,63 +66,26 @@ public class Drawing extends JPanel implements MouseMotionListener{
         
         // Definition des variables Graphique
         g2 = (Graphics2D) g;
+        g2.setBackground(Color.white);
         width = this.getWidth();
         height = this.getHeight();
+        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
         
-        // Selection du mode (definit par Control)
-        switch (mode){
-        	case "Zero":
-        		// Image de base sur le panneau Drawing
-        		BufferedImage image=null;
-        		try {
-        			image = ImageIO.read(new File("photo.png"));
-    			} catch (IOException e) {
-    				e.printStackTrace();
-    			}
-            	g2.drawImage(image, 0, 0, width, height, null);
-        		break;
-        	case "Axes":
-            	traceAxes();
-            	break;
-        	case "Clas":
-        		traceA();
-            	traceB();
-            	if (showM) traceM();
-            	traceAxes();
-            	GradPainted = false; // Refresh la BufferedImage
-            	break;
-        	case "Grad":
-        		if (GradPainted) {
-        			try {
-        				BufferedImage imageGrad = ImageIO.read(new File("output.png"));
-            			g2.drawImage(imageGrad, 0, 0, null);
-            			traceA();
-            	    	traceB();
-            	    	if (showM) traceM();
-            	    	traceAxes();
-        			} catch (IOException e) {
-        				e.printStackTrace();
-        			}
-        		}
-        		else {
-        			gradient();
-        			saveImage();
-        			this.repaint();
-        		}
-        		GradPainted = true;
-        		break;
-        	default:
-        }
+        update();
         
         // Affichage du potentiel au cursor
         g2.setColor(Color.BLACK);
-        if (mode=="Grad") g2.drawString(Double.toString(pot[y][x])+"V", x, y);
+        if (mode=="Grad") {
+        	g2.drawString(Double.toString(pot[y][x])+"V", x, y);
+        	System.out.println("Bonjour");
+        }
+        
     }
     
     // Trace les points
     public void traceA() {
     	g2.setColor(Color.BLACK);
-    	g2.drawOval(Conversion.doublepixelX(p.getA().getPoint().getX())-2, Conversion.doublepixelY(p.getA().getPoint().getY())-2, 6, 6);
+    	g2.drawOval(Conversion.doublepixelX(p.getA().getPoint().getX())-3, Conversion.doublepixelY(p.getA().getPoint().getY())-3, 6, 6);
     	if (showCoord) coord = "A ("+p.getA().getPoint().getX()+";"+p.getA().getPoint().getY()+")";
     	else coord = "A";
     	g2.drawString(coord, Conversion.doublepixelX(p.getA().getPoint().getX())+10, Conversion.doublepixelY(p.getA().getPoint().getY())+10);
@@ -147,28 +110,31 @@ public class Drawing extends JPanel implements MouseMotionListener{
     public void gradient() {
     	int i,j;
     	Color c=null;
-    	for (i = height-1; i >=0; i--) {
-    		for (j = width-1; j >= 0; j--) {
+    	for (i = 0; i < height; i++) {
+    		for (j = 0; j < width; j++) {
     			c = ColorGradient.getColorGradient(pot[i][j], plus, minus, nbrColor);
-    			g2.setColor(c);
-    			g2.drawOval(j, i, 1, 1);
+    			image.setRGB(j, i, c.getRGB());
     		}
         }
-    	int nbrColorMax = 50; // Au dessu de 50, des erreurs d'aproximation forme des lignes transparentes sur l'echelle
-    	if (nbrColor<=50) nbrColorMax = nbrColor;
-    	for (int x=1; x<=nbrColorMax; x++) {
-    		double h = ((double)x)*0.65/((double)nbrColorMax);
-    		g2.setColor(Color.getHSBColor((float) h, 1, 1));
-    		g2.fillRect(width-230-(int)(200/(double)nbrColorMax)+(int)((double)(x*200)/(double)nbrColorMax), height-40, (int)(200/(double)nbrColorMax), 25);
-    	}
-    	g2.setColor(Color.BLACK);
-    	g2.drawRect(width-230, height-40, 200, 25);
-    	FontMetrics metrics = g2.getFontMetrics();
-    	g2.setColor(Color.BLACK);
-    	if (minus<9999) minus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(minus))));
-    	if (plus>9999) plus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(plus))));
-    	g2.drawString(Double.toString(minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
-    	g2.drawString(Double.toString(plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
+    	g2.drawImage(image, null, 0, 0);
+    	
+    		int nbrColorMax = 50; // Au dessu de 50, des erreurs d'aproximation forme des lignes transparentes sur l'echelle
+    		if (nbrColor<=50) nbrColorMax = nbrColor;
+        	for (int x=1; x<=nbrColorMax; x++) {
+        		double h = ((double)x)*0.65/((double)nbrColorMax);
+        		g2.setColor(Color.getHSBColor((float) h, 1, 1));
+        		g2.fillRect(width-230-(int)(200/(double)nbrColorMax)+(int)((double)(x*200)/(double)nbrColorMax), height-40, (int)(200/(double)nbrColorMax), 25);
+        	}
+        	g2.setColor(Color.BLACK);
+        	g2.drawRect(width-230, height-40, 200, 25);
+        	FontMetrics metrics = g2.getFontMetrics();
+        	g2.setColor(Color.BLACK);
+        	if (minus<9999) minus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(minus))));
+        	if (plus>9999) plus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(plus))));
+        	g2.drawString(Double.toString(minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
+        	g2.drawString(Double.toString(plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
+    	
+    	
     }
     
     // Trace les Axes et les graduations
@@ -223,24 +189,45 @@ public class Drawing extends JPanel implements MouseMotionListener{
         }
     }
     
-    // Enregistre la BufferedImage (Fond de Gradient)
-     public void saveImage() {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
-        g2 = image.createGraphics();
-
-        try {
-           File output = new File("output.png");
-           gradient();
-           /*traceA();
-           traceB();
-           traceM();
-           traceAxes();*/
-           ImageIO.write(image, "png", output);
-           System.out.println("Bonjour");
-        } catch(IOException log) {
-           System.out.println(log);
+    // Selection du mode (definit par Control)
+    public void update() {
+        switch (mode){
+        	case "Zero":
+        		break;
+        	case "Axes":
+        		traceAxes();
+        		break;
+        	case "Clas":
+        		traceA();
+                traceB();
+        	    if (showM) traceM();
+                traceAxes();
+        		break;
+        	case "Grad":
+        		gradient();
+        		traceA();
+                traceB();
+        	    if (showM) traceM();
+                traceAxes();
+        		break;
+        	default:
         }
-  }
+    }
+    
+    // Enregistre l'image 
+     public void saveImage() {
+    	g2 = image.createGraphics();
+    	g2.setColor(Color.white);
+    	g2.fillRect(0, 0, width, height);
+        try {
+            File output3 = new File("output.png");
+            update();
+            ImageIO.write(image, "png", output3);
+            Desktop.getDesktop().open(new File("output.png"));
+         } catch(IOException log) {
+            System.out.println(log);
+         }
+     }
     
     // Renvoi les Dimensions du panneau Drawing
     public static int getWidthDrawing(){
@@ -264,7 +251,6 @@ public class Drawing extends JPanel implements MouseMotionListener{
     	if (nbrColor<10) nbrColorMax = 10;
     	if (this.nbrColor != Math.abs(nbrColorMax)) {
     		this.nbrColor = Math.abs(nbrColorMax);
-    		GradPainted = false; // Refresh la BufferedImage
     	}
     	
     }

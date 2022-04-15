@@ -13,6 +13,7 @@ import Business.*;
 
 public class Control extends JPanel {
     private static final long serialVersionUID = 1L;
+    
 	// Instance des differents panneaux
     private static Drawing panelDrawing;
     private static Status panelStatus;
@@ -40,6 +41,9 @@ public class Control extends JPanel {
     boolean ShowCoordselected=false;
     boolean ShowMselected=false;
     
+    // Bouton enregistrer
+    private JButton Enregistrer;
+    
     // Constructeur de Control
     public Control(Potentiel p) {
     	this.p =p;
@@ -57,6 +61,20 @@ public class Control extends JPanel {
         panEch.setVisible(true);
         panPoint.setVisible(false);
         panPara.setVisible(false);
+        
+        // Bouton Enregistrer
+    	Enregistrer = new JButton();
+    	Enregistrer.addActionListener((ActionEvent evt) -> {
+        	panelDrawing.saveImage();
+            });
+    	this.add(Enregistrer);
+    	Enregistrer.setVisible(false);
+    	ImageIcon EnregistrerIcon = new ImageIcon("Enregistrer.png");
+    	Image img = EnregistrerIcon.getImage();
+    	Image ico = img.getScaledInstance( 25, 25,  java.awt.Image.SCALE_SMOOTH ) ;  
+    	EnregistrerIcon = new ImageIcon(ico);
+    	Enregistrer.setFocusable(false);
+    	Enregistrer.setIcon(EnregistrerIcon);
         
         // Selection de la page
         JPanel Selec = new JPanel();
@@ -95,17 +113,20 @@ public class Control extends JPanel {
             panPara.setVisible(false);
             Point.setEnabled(false);
             Para.setEnabled(false);
+            Enregistrer.setVisible(false);
             });
         Point.addActionListener((ActionEvent evt) -> {
         	panEch.setVisible(false);
             panPoint.setVisible(true);
             panPara.setVisible(false);
             Para.setEnabled(false);
+            Enregistrer.setVisible(false);
             });
         Para.addActionListener((ActionEvent evt) -> {
         	panEch.setVisible(false);
             panPoint.setVisible(false);
             panPara.setVisible(true);
+            Enregistrer.setVisible(true);
             });
         
         this.add(panEch);
@@ -483,10 +504,12 @@ public class Control extends JPanel {
         
         Gradient.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
+        	if (!Gradientselected) panelDrawing.setMode("Clas");
             panChamp.setVisible(Champselected);
         	panEquipote.setVisible(Equipoteselected);
         	panelDrawing.setShowCoord(ShowCoordselected);
         	panelDrawing.setShowM(ShowMselected);
+        	panelDrawing.repaint();
             });
         Champ.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
@@ -494,6 +517,7 @@ public class Control extends JPanel {
         	panEquipote.setVisible(Equipoteselected);
         	panelDrawing.setShowCoord(ShowCoordselected);
         	panelDrawing.setShowM(ShowMselected);
+        	panelDrawing.repaint();
             });
         Equipote.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
@@ -501,6 +525,7 @@ public class Control extends JPanel {
         	panEquipote.setVisible(Equipoteselected);
         	panelDrawing.setShowCoord(ShowCoordselected);
         	panelDrawing.setShowM(ShowMselected);
+        	panelDrawing.repaint();
             });
         ShowCoord.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
@@ -508,6 +533,7 @@ public class Control extends JPanel {
         	panEquipote.setVisible(Equipoteselected);
         	panelDrawing.setShowCoord(ShowCoordselected);
         	panelDrawing.setShowM(ShowMselected);
+        	panelDrawing.repaint();
             });
         ShowM.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
@@ -515,6 +541,7 @@ public class Control extends JPanel {
         	panEquipote.setVisible(Equipoteselected);
         	panelDrawing.setShowCoord(ShowCoordselected);
         	panelDrawing.setShowM(ShowMselected);
+        	panelDrawing.repaint();
             });
         
     	// Sous-panneau Gradient
@@ -540,11 +567,11 @@ public class Control extends JPanel {
     	nbrColor.setColumns(3);
     	panGradient1.add(nbrColor);
     	
-    	// JButton Valider
-    	JButton Valider = new JButton("Valider"); 
+    	// JButton ValiderNbrColor
+    	JButton ValiderNbrColor = new JButton("Valider"); 
     	
     	// Listener de ValiderNbrColor
-    	Valider.addActionListener((ActionEvent evt) -> {
+    	ValiderNbrColor.addActionListener((ActionEvent evt) -> {
     		boolean passGradient = true;
     		if (Gradientselected) {
             	// Vérifier si les valeurs saisies sont conformes
@@ -558,15 +585,13 @@ public class Control extends JPanel {
             	if (passGradient) {
             		panelDrawing.setNbrColor((int)Double.parseDouble(nbrColor.getText()));
             		panelDrawing.setMode("Grad");
+            		panelDrawing.repaint();
             	}
-    		}
-    		if (passGradient) {
-    			panelDrawing.repaint();
     		}
             });
     	panGradient.add(panGradient1);
+    	panGradient.add(ValiderNbrColor);
     	panPara.add(panGradient);
-    	panPara.add(Valider);
     	
     	// Sous-panneau Champ
     	

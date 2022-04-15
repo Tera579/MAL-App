@@ -6,7 +6,7 @@ public class ElectricField {
 	
 	int larg = Drawing.getWidthDrawing();
     int haut = Drawing.getHeightDrawing();
-    double pot[][] = new double[haut+1][larg+1];  // tableau où vont être stockées les valeurs de potentiel
+    double[][] pot = new double[haut+1][larg+1];  // tableau où vont être stockées les valeurs de potentiel
     int i, j; // variable de tableau 
     double plus, minus, pij;
     int maillage=2;
