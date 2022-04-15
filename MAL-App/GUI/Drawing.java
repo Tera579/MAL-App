@@ -12,11 +12,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Drawing extends JPanel implements MouseListener{
+public class Drawing extends JPanel implements MouseMotionListener{
 	
 	private static final long serialVersionUID = 1L;
 
@@ -41,12 +42,21 @@ public class Drawing extends JPanel implements MouseListener{
 	private double minus;
 	private double plus;
 	private int nbrColor;
+	private boolean GradPainted;
+	
+	// Coordonnees du cursor
+	int x,y;
+	
+	// Affichage des Coordonnees
+	private boolean showCoord;
+	String coord;
+	private boolean showM;
 	
 	// Constructeur de Drawing
     public Drawing(Potentiel p) {
         this.p = p;
         this.setBackground(Color.WHITE);
-        addMouseListener(this);
+        addMouseMotionListener(this);
     }   
     
     // Lance les differentes methodes graphique
@@ -77,35 +87,60 @@ public class Drawing extends JPanel implements MouseListener{
         	case "Clas":
         		traceA();
             	traceB();
-            	traceM();
+            	if (showM) traceM();
             	traceAxes();
+            	GradPainted = false; // Refresh la BufferedImage
             	break;
         	case "Grad":
-        		gradient();
-        		traceA();
-            	traceB();
-            	traceM();
-            	traceAxes();
+        		if (GradPainted) {
+        			try {
+        				BufferedImage imageGrad = ImageIO.read(new File("output.png"));
+            			g2.drawImage(imageGrad, 0, 0, null);
+            			traceA();
+            	    	traceB();
+            	    	if (showM) traceM();
+            	    	traceAxes();
+        			} catch (IOException e) {
+        				e.printStackTrace();
+        			}
+        		}
+        		else {
+        			gradient();
+        			saveImage();
+        			this.repaint();
+        		}
+        		GradPainted = true;
         		break;
         	default:
         }
+        
+        // Affichage du potentiel au cursor
+        g2.setColor(Color.BLACK);
+        if (mode=="Grad") g2.drawString(Double.toString(pot[y][x])+"V", x, y);
     }
     
     // Trace les points
     public void traceA() {
     	g2.setColor(Color.BLACK);
-    	g2.drawOval(Conversion.doublepixelX(p.getA().getPoint().getX())-3, Conversion.doublepixelY(p.getA().getPoint().getY())-3, 6, 6);
-        g2.drawString(p.getA().getPoint().getName(), Conversion.doublepixelX(p.getA().getPoint().getX())+10, Conversion.doublepixelY(p.getA().getPoint().getY())+10);
+    	g2.drawOval(Conversion.doublepixelX(p.getA().getPoint().getX())-2, Conversion.doublepixelY(p.getA().getPoint().getY())-2, 6, 6);
+    	if (showCoord) coord = "A ("+p.getA().getPoint().getX()+";"+p.getA().getPoint().getY()+")";
+    	else coord = "A";
+    	g2.drawString(coord, Conversion.doublepixelX(p.getA().getPoint().getX())+10, Conversion.doublepixelY(p.getA().getPoint().getY())+10);
     }
 	public void traceB() {
 		g2.setColor(Color.BLACK);
 		g2.drawOval(Conversion.doublepixelX(p.getB().getPoint().getX())-3, Conversion.doublepixelY(p.getB().getPoint().getY())-3, 6, 6);
-    	g2.drawString(p.getB().getPoint().getName(), Conversion.doublepixelX(p.getB().getPoint().getX())+10, Conversion.doublepixelY(p.getB().getPoint().getY())+10);
+		if (showCoord) coord = "B ("+p.getB().getPoint().getX()+";"+p.getB().getPoint().getY()+")";
+		else coord = "B";
+    	g2.drawString(coord, Conversion.doublepixelX(p.getB().getPoint().getX())+10, Conversion.doublepixelY(p.getB().getPoint().getY())+10);
 	}        
 	public void traceM() {
     	g2.setColor(Color.BLACK);
     	g2.drawOval(Conversion.doublepixelX(p.getM().getX())-3, Conversion.doublepixelY(p.getM().getY())-3, 6, 6);
-    	g2.drawString(p.getM().getName(), Conversion.doublepixelX(p.getM().getX())+10, Conversion.doublepixelY(p.getM().getY())+10);
+    	if (showCoord) coord = "M ("+p.getM().getX()+";"+p.getM().getY()+")";
+    	else coord = "M";
+    	g2.drawString(coord, Conversion.doublepixelX(p.getM().getX())+10, Conversion.doublepixelY(p.getM().getY())+10);
+    	g2.drawString(Double.toString(pot[Conversion.doublepixelY(p.getM().getY())][Conversion.doublepixelX(p.getM().getX())])+"V", Conversion.doublepixelX(p.getM().getX()), Conversion.doublepixelY(p.getM().getY())+30);
     }
     
     // Color le graphique en fonction du potentiel
@@ -116,13 +151,13 @@ public class Drawing extends JPanel implements MouseListener{
     		for (j = width-1; j >= 0; j--) {
     			c = ColorGradient.getColorGradient(pot[i][j], plus, minus, nbrColor);
     			g2.setColor(c);
-    			g2.drawLine(j, i, 1, 1);
+    			g2.drawOval(j, i, 1, 1);
     		}
         }
     	int nbrColorMax = 50; // Au dessu de 50, des erreurs d'aproximation forme des lignes transparentes sur l'echelle
     	if (nbrColor<=50) nbrColorMax = nbrColor;
     	for (int x=1; x<=nbrColorMax; x++) {
-    		double h = ((double)x)*0.80/((double)nbrColorMax);
+    		double h = ((double)x)*0.65/((double)nbrColorMax);
     		g2.setColor(Color.getHSBColor((float) h, 1, 1));
     		g2.fillRect(width-230-(int)(200/(double)nbrColorMax)+(int)((double)(x*200)/(double)nbrColorMax), height-40, (int)(200/(double)nbrColorMax), 25);
     	}
@@ -134,7 +169,6 @@ public class Drawing extends JPanel implements MouseListener{
     	if (plus>9999) plus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(plus))));
     	g2.drawString(Double.toString(minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
     	g2.drawString(Double.toString(plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
-    	
     }
     
     // Trace les Axes et les graduations
@@ -189,6 +223,25 @@ public class Drawing extends JPanel implements MouseListener{
         }
     }
     
+    // Enregistre la BufferedImage (Fond de Gradient)
+     public void saveImage() {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
+        g2 = image.createGraphics();
+
+        try {
+           File output = new File("output.png");
+           gradient();
+           /*traceA();
+           traceB();
+           traceM();
+           traceAxes();*/
+           ImageIO.write(image, "png", output);
+           System.out.println("Bonjour");
+        } catch(IOException log) {
+           System.out.println(log);
+        }
+  }
+    
     // Renvoi les Dimensions du panneau Drawing
     public static int getWidthDrawing(){
         return width;
@@ -208,40 +261,40 @@ public class Drawing extends JPanel implements MouseListener{
     }
     public void setNbrColor(int nbrColor) {
     	int nbrColorMax = nbrColor;
-    	if (nbrColor<5) nbrColorMax = 5;
-    	this.nbrColor = Math.abs(nbrColorMax);
+    	if (nbrColor<10) nbrColorMax = 10;
+    	if (this.nbrColor != Math.abs(nbrColorMax)) {
+    		this.nbrColor = Math.abs(nbrColorMax);
+    		GradPainted = false; // Refresh la BufferedImage
+    	}
+    	
     }
     public void setPot(double[][] pot, double plus, double minus) {
     	this.pot = pot;
     	this.plus = plus;
     	this.minus = minus;
     }
+    
+    public void setShowCoord(boolean showCoord) {
+    	this.showCoord = showCoord;
+    }
+    
+    public void setShowM(boolean showM) {
+    	this.showM = showM;
+    }
 	
-    // Methodes de MouseListener
-    @Override
-	public void mouseClicked(MouseEvent e) {
-		int x = e.getX();
-		int y = e.getY();
-		System.out.println("x="+x+" y="+y);
-	}
+    // Methodes de MouseMotionListener
 	@Override
-	public void mousePressed(MouseEvent e) {
+	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
+	// Mise à jour du pot au cursor
 	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+	public void mouseMoved(MouseEvent e) {
+		if (mode=="Grad") {
+			x = e.getX();
+			y = e.getY();
+			this.repaint();
+		}
 	}
 }

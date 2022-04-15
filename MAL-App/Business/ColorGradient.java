@@ -16,13 +16,13 @@ public class ColorGradient {
 		
 		if (p<=0) {
 			ratio = Math.abs((Math.log10(Math.abs(p))+2) / (Math.log10(Math.abs(minus))+2));
-			c = Color.getHSBColor((float) (((double)(((int)((0.4-0.4*ratio)*nbrColor))))/nbrColor), 1, 1);
+			c = Color.getHSBColor((float) (((double)(((int)((0.30-0.30*ratio)*nbrColor))))/nbrColor), 1, 1);
 		}
 		else {
 			ratio = Math.abs((Math.log10(Math.abs(p))+2) / (Math.log10(Math.abs(plus))+2));
-			c = Color.getHSBColor((float) (((double)(((int)((0.4+0.5*ratio)*nbrColor))))/nbrColor), 1, 1);
+			c = Color.getHSBColor((float) (((double)(((int)((0.30+0.30*ratio+0.08)*nbrColor))))/nbrColor), 1, 1);
 		}
-		if (p==0.0) c = Color.getHSBColor((float) 0.4, 1, 1);
+		if (p==0.0) c = Color.getHSBColor((float) 0.30, 1, 1);
 		return c;
 	}
 }

@@ -6,9 +6,10 @@ public class ElectricField {
 	
 	int larg = Drawing.getWidthDrawing();
     int haut = Drawing.getHeightDrawing();
-    double pot[][] = new double[haut][larg];  // tableau où vont être stockées les valeurs de potentiel
-    int i, j, pixel=0; // variable de tableau 
+    double pot[][] = new double[haut+1][larg+1];  // tableau où vont être stockées les valeurs de potentiel
+    int i, j; // variable de tableau 
     double plus, minus, pij;
+    int maillage=2;
     
 
     public ElectricField(Potentiel p) {
@@ -18,6 +19,7 @@ public class ElectricField {
     	p.calculPotentiel(a, b, m);
     	plus = p.getV();
     	minus = plus;
+    	// Pixel
         for (i = 0; i < haut; i++) {
         	for (j = 0; j < larg; j++) {
         		double my = Conversion.pixeldoubleY(i);
@@ -28,7 +30,6 @@ public class ElectricField {
         		if (pij>plus) plus=pij;
         		if (pij<minus) minus=pij;
         		pot[i][j] = pij;
-        		pixel++;
         	}
         }
     }

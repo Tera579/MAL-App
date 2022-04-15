@@ -37,6 +37,8 @@ public class Control extends JPanel {
     boolean Gradientselected=false;
     boolean Champselected=false;
     boolean Equipoteselected=false;
+    boolean ShowCoordselected=false;
+    boolean ShowMselected=false;
     
     // Constructeur de Control
     public Control(Potentiel p) {
@@ -381,6 +383,7 @@ public class Control extends JPanel {
         	   
         	   // Setters de Drawing
         	   panelDrawing.setMode("Clas");
+        	   panelDrawing.setPot(pot, plus, minus);
         	   panelDrawing.repaint();
         	   
         	   // Reactive le JRadioButton de la 3e page et changement de page
@@ -413,9 +416,13 @@ public class Control extends JPanel {
     	JRadioButton Gradient = new JRadioButton("Gradient");
         JRadioButton Champ = new JRadioButton("Champ Electrique");
         JRadioButton Equipote = new JRadioButton("Equipotentiel");
+        JRadioButton ShowCoord = new JRadioButton("Afficher les Coordonnées");
+        JRadioButton ShowM = new JRadioButton("Afficher M");
         Button.add(Gradient);
         Button.add(Champ);
         Button.add(Equipote);
+        Button.add(ShowCoord);
+        Button.add(ShowM);
         Button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panPara.add(Button);
         
@@ -454,22 +461,60 @@ public class Control extends JPanel {
     	        Equipoteselected = aModel.isSelected();
 			}
     	    };
-        Equipote.addChangeListener(EquipoteselectedListener);
+    	 Equipote.addChangeListener(EquipoteselectedListener);
+    	 ChangeListener ShowCoordselectedListener = new ChangeListener() {
+    		@Override
+    		public void stateChanged(ChangeEvent e) {
+    			AbstractButton aButton = (AbstractButton)e.getSource();
+                ButtonModel aModel = aButton.getModel();
+                ShowCoordselected = aModel.isSelected();
+    		}
+            };
+        ShowCoord.addChangeListener(ShowCoordselectedListener);
+        ChangeListener ShowMselectedListener = new ChangeListener() {
+    		@Override
+    		public void stateChanged(ChangeEvent e) {
+    			AbstractButton aButton = (AbstractButton)e.getSource();
+                ButtonModel aModel = aButton.getModel();
+                ShowMselected = aModel.isSelected();
+    		}
+            };
+        ShowM.addChangeListener(ShowMselectedListener);
         
         Gradient.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
             panChamp.setVisible(Champselected);
         	panEquipote.setVisible(Equipoteselected);
+        	panelDrawing.setShowCoord(ShowCoordselected);
+        	panelDrawing.setShowM(ShowMselected);
             });
         Champ.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
             panChamp.setVisible(Champselected);
         	panEquipote.setVisible(Equipoteselected);
+        	panelDrawing.setShowCoord(ShowCoordselected);
+        	panelDrawing.setShowM(ShowMselected);
             });
         Equipote.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
             panChamp.setVisible(Champselected);
         	panEquipote.setVisible(Equipoteselected);
+        	panelDrawing.setShowCoord(ShowCoordselected);
+        	panelDrawing.setShowM(ShowMselected);
+            });
+        ShowCoord.addActionListener((ActionEvent evt) -> {
+        	panGradient.setVisible(Gradientselected);
+            panChamp.setVisible(Champselected);
+        	panEquipote.setVisible(Equipoteselected);
+        	panelDrawing.setShowCoord(ShowCoordselected);
+        	panelDrawing.setShowM(ShowMselected);
+            });
+        ShowM.addActionListener((ActionEvent evt) -> {
+        	panGradient.setVisible(Gradientselected);
+            panChamp.setVisible(Champselected);
+        	panEquipote.setVisible(Equipoteselected);
+        	panelDrawing.setShowCoord(ShowCoordselected);
+        	panelDrawing.setShowM(ShowMselected);
             });
         
     	// Sous-panneau Gradient
@@ -495,32 +540,33 @@ public class Control extends JPanel {
     	nbrColor.setColumns(3);
     	panGradient1.add(nbrColor);
     	
-    	// JButton ValiderNbrColor
-    	JButton ValiderNbrColor = new JButton("Valider"); 
+    	// JButton Valider
+    	JButton Valider = new JButton("Valider"); 
     	
     	// Listener de ValiderNbrColor
-    	ValiderNbrColor.addActionListener((ActionEvent evt) -> {
-        	boolean pass = true;
-        	
-        	// Vérifier si les valeurs saisies sont conformes
-        	try{Double.parseDouble(nbrColor.getText());}
-        	catch(NumberFormatException a){
-        		pass=false;
-        		nbrColor.setText("25");
-        		System.out.println("le xmax est non conforme");}
-        	
-        	// Action effectue si les valeurs sont conformes
-        	if (pass) {
-        		panelDrawing.setNbrColor((int)Double.parseDouble(nbrColor.getText()));
-         	    panelDrawing.setPot(pot, plus, minus);
-        		panelDrawing.setMode("Grad");
-        		panelDrawing.repaint();
-        	}
-        	
+    	Valider.addActionListener((ActionEvent evt) -> {
+    		boolean passGradient = true;
+    		if (Gradientselected) {
+            	// Vérifier si les valeurs saisies sont conformes
+            	try{Double.parseDouble(nbrColor.getText());}
+            	catch(NumberFormatException a){
+            		passGradient=false;
+            		nbrColor.setText("25");
+            		System.out.println("le xmax est non conforme");}
+            	
+            	// Action effectue si les valeurs sont conformes
+            	if (passGradient) {
+            		panelDrawing.setNbrColor((int)Double.parseDouble(nbrColor.getText()));
+            		panelDrawing.setMode("Grad");
+            	}
+    		}
+    		if (passGradient) {
+    			panelDrawing.repaint();
+    		}
             });
     	panGradient.add(panGradient1);
-    	panGradient.add(ValiderNbrColor);
     	panPara.add(panGradient);
+    	panPara.add(Valider);
     	
     	// Sous-panneau Champ
     	
