@@ -2,7 +2,7 @@ package Business;
 
 import GUI.Drawing;
 
-public class ElectricField {
+public class PotentialField {
 	
 	int larg = Drawing.getWidthDrawing();
     int haut = Drawing.getHeightDrawing();
@@ -12,11 +12,11 @@ public class ElectricField {
     int maillage=2;
     
 
-    public ElectricField(Potentiel p) {
+    public PotentialField(Potential p) {
     	Particule a = p.getA();
 		Particule b = p.getB();
 		Point m = new Point (0, 0, "Field"); 
-    	p.calculPotentiel(a, b, m);
+    	p.calculPotential(a, b, m);
     	plus = p.getV();
     	minus = plus;
     	// Pixel
@@ -25,7 +25,7 @@ public class ElectricField {
         		double my = Conversion.pixeldoubleY(i);
         		double mx = Conversion.pixeldoubleX(j);
         		m = new Point (mx, my, "Field");  
-        		p.calculPotentiel(a, b, m);
+        		p.calculPotential(a, b, m);
         		pij = p.getV();
         		if (pij>plus) plus=pij;
         		if (pij<minus) minus=pij;
@@ -34,14 +34,14 @@ public class ElectricField {
         }
     }
     
-public double[][] getElectricField() {
+public double[][] getPotentialField() {
     return pot;
 }
-public double getElectricFieldPlus() {
+public double getPotentialFieldPlus() {
 	System.out.println("P plus="+plus);
     return plus;
 }
-public double getElectricFieldMinus() {
+public double getPotentialFieldMinus() {
 	System.out.println("P moins="+minus);
     return minus;
 }

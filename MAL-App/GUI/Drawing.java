@@ -12,17 +12,17 @@ import Business.*;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Drawing extends JPanel implements MouseMotionListener{
+public class Drawing extends JPanel implements MouseListener{
 	
 	private static final long serialVersionUID = 1L;
 
 	// Constucteur
-    private Potentiel p;
+    private Potential p;
     
     // Graphique
     private static int width;
@@ -44,19 +44,23 @@ public class Drawing extends JPanel implements MouseMotionListener{
 	private double plus;
 	private int nbrColor;
 	
-	// Coordonnees du cursor
+	// Cursor
 	int x,y;
+	boolean firstclick=false;
 	
 	// Affichage des Coordonnees
 	private boolean showCoord;
-	String coord;
+	String text;
+	int xpixel, ypixel;
 	private boolean showM;
+	private boolean showField;
+	private boolean showQ;
 	
 	// Constructeur de Drawing
-    public Drawing(Potentiel p) {
+    public Drawing(Potential p) {
         this.p = p;
         this.setBackground(Color.WHITE);
-        addMouseMotionListener(this);
+        addMouseListener(this);
     }   
     
     // Lance les differentes methodes graphique
@@ -75,35 +79,62 @@ public class Drawing extends JPanel implements MouseMotionListener{
         
         // Affichage du potentiel au cursor
         g2.setColor(Color.BLACK);
-        if (mode=="Grad") {
-        	g2.drawString(Double.toString(pot[y][x])+"V", x, y);
-        	System.out.println("Bonjour");
+        if (mode=="Grad" && firstclick) {
+        	g2.drawString(Double.toString(pot[y][x])+"V", x+5, y+3);
+        	g2.drawLine(x-3, y-3, x+3, y+3);
+        	g2.drawLine(x+3, y-3, x-3, y+3);
         }
         
+    }
+    // Trace le champ electrique
+    /* J'ai deux methodes pour tracer une ligne de champ sur m mais elle ne 
+     * sont pas top, essayez d'en trouver une autre plus juste, qui fonctionne tjrs
+     */
+    public void electricField() {
+    	ElectricField eleF = new ElectricField(p);
+    	Electric elc = new Electric();
+    	Point ElecPoint;
+	
+    	for (int i = 0; i < height; i=i+10) {
+    		for (int j = 0; j < width; j=j+10) {
+    			ElecPoint = new Point(Conversion.pixeldoubleX(j), Conversion.pixeldoubleY(i), "Field"); 
+    			elc.calculElectric(p.getA(), p.getB(), ElecPoint);
+    			g2.drawLine(j, i, j+(int)(elc.geti()), i-(int)(elc.getj()));
+    		}
+    	}
     }
     
     // Trace les points
     public void traceA() {
     	g2.setColor(Color.BLACK);
-    	g2.drawOval(Conversion.doublepixelX(p.getA().getPoint().getX())-3, Conversion.doublepixelY(p.getA().getPoint().getY())-3, 6, 6);
-    	if (showCoord) coord = "A ("+p.getA().getPoint().getX()+";"+p.getA().getPoint().getY()+")";
-    	else coord = "A";
-    	g2.drawString(coord, Conversion.doublepixelX(p.getA().getPoint().getX())+10, Conversion.doublepixelY(p.getA().getPoint().getY())+10);
+    	xpixel = Conversion.doublepixelX(p.getA().getPoint().getX());
+    	ypixel = Conversion.doublepixelY(p.getA().getPoint().getY());
+    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
+    	if (showCoord) text = "A ("+p.getA().getPoint().getX()+";"+p.getA().getPoint().getY()+")";
+    	else text = "A";
+    	g2.drawString(text, xpixel+10, ypixel+10);
+    	if (showQ) g2.drawString(Double.toString(p.getA().getQ())+"nC", xpixel+10, ypixel+25);
+    	System.out.println("charge A="+Double.toString(p.getA().getQ()));
     }
 	public void traceB() {
 		g2.setColor(Color.BLACK);
-		g2.drawOval(Conversion.doublepixelX(p.getB().getPoint().getX())-3, Conversion.doublepixelY(p.getB().getPoint().getY())-3, 6, 6);
-		if (showCoord) coord = "B ("+p.getB().getPoint().getX()+";"+p.getB().getPoint().getY()+")";
-		else coord = "B";
-    	g2.drawString(coord, Conversion.doublepixelX(p.getB().getPoint().getX())+10, Conversion.doublepixelY(p.getB().getPoint().getY())+10);
+		xpixel = Conversion.doublepixelX(p.getB().getPoint().getX());
+    	ypixel = Conversion.doublepixelY(p.getB().getPoint().getY());
+    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
+    	if (showCoord) text = "B ("+p.getB().getPoint().getX()+";"+p.getB().getPoint().getY()+")";
+    	else text = "B";
+    	g2.drawString(text, xpixel+10, ypixel+10);
+    	if (showQ) g2.drawString(Double.toString(p.getB().getQ())+"nC", xpixel+10, ypixel+25);
 	}        
 	public void traceM() {
     	g2.setColor(Color.BLACK);
-    	g2.drawOval(Conversion.doublepixelX(p.getM().getX())-3, Conversion.doublepixelY(p.getM().getY())-3, 6, 6);
-    	if (showCoord) coord = "M ("+p.getM().getX()+";"+p.getM().getY()+")";
-    	else coord = "M";
-    	g2.drawString(coord, Conversion.doublepixelX(p.getM().getX())+10, Conversion.doublepixelY(p.getM().getY())+10);
-    	g2.drawString(Double.toString(pot[Conversion.doublepixelY(p.getM().getY())][Conversion.doublepixelX(p.getM().getX())])+"V", Conversion.doublepixelX(p.getM().getX()), Conversion.doublepixelY(p.getM().getY())+30);
+    	xpixel = Conversion.doublepixelX(p.getM().getX());
+    	ypixel = Conversion.doublepixelY(p.getM().getY());
+    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
+    	if (showCoord) text = "M ("+p.getM().getX()+";"+p.getM().getY()+")";
+    	else text = "M";
+    	g2.drawString(text, xpixel+10, ypixel+10);
+    	g2.drawString(Double.toString(pot[ypixel][xpixel])+"V", xpixel+10, ypixel+25);
     }
     
     // Color le graphique en fonction du potentiel
@@ -113,28 +144,29 @@ public class Drawing extends JPanel implements MouseMotionListener{
     	for (i = 0; i < height; i++) {
     		for (j = 0; j < width; j++) {
     			c = ColorGradient.getColorGradient(pot[i][j], plus, minus, nbrColor);
+    			if (pot[i][j]==0) c = Color.BLACK;
     			image.setRGB(j, i, c.getRGB());
     		}
         }
     	g2.drawImage(image, null, 0, 0);
     	
-    		int nbrColorMax = 50; // Au dessu de 50, des erreurs d'aproximation forme des lignes transparentes sur l'echelle
-    		if (nbrColor<=50) nbrColorMax = nbrColor;
-        	for (int x=1; x<=nbrColorMax; x++) {
-        		double h = ((double)x)*0.65/((double)nbrColorMax);
-        		g2.setColor(Color.getHSBColor((float) h, 1, 1));
-        		g2.fillRect(width-230-(int)(200/(double)nbrColorMax)+(int)((double)(x*200)/(double)nbrColorMax), height-40, (int)(200/(double)nbrColorMax), 25);
-        	}
-        	g2.setColor(Color.BLACK);
-        	g2.drawRect(width-230, height-40, 200, 25);
-        	FontMetrics metrics = g2.getFontMetrics();
-        	g2.setColor(Color.BLACK);
-        	if (minus<9999) minus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(minus))));
-        	if (plus>9999) plus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(plus))));
-        	g2.drawString(Double.toString(minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
-        	g2.drawString(Double.toString(plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
-    	
-    	
+    	int nbrColorMax = 50; // Au dessu de 50, des erreurs d'aproximation forme des lignes transparentes sur l'echelle
+		if (nbrColor<=50) nbrColorMax = nbrColor;
+    	for (int x=1; x<=nbrColorMax; x++) {
+    		double h = ((double)x)*0.65/((double)nbrColorMax);
+    		g2.setColor(Color.getHSBColor((float) h, 1, 1));
+    		g2.fillRect(width-230-(int)(200/(double)nbrColorMax)+(int)((double)(x*200)/(double)nbrColorMax), height-40, (int)(200/(double)nbrColorMax), 25);
+    	}
+    	g2.setColor(Color.BLACK);
+    	g2.drawRect(width-230, height-40, 200, 25);
+    	FontMetrics metrics = g2.getFontMetrics();
+    	g2.setColor(Color.BLACK);
+    	if (minus<9999) minus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(minus))));
+    	if (plus>9999) plus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(plus))));
+    	g2.drawString(Double.toString(minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
+    	g2.drawString("0", width-130-metrics.stringWidth("0")/2, height-2);
+    	g2.drawLine(width-130, height-40, width-130, height-15);
+    	g2.drawString(Double.toString(plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
     }
     
     // Trace les Axes et les graduations
@@ -212,6 +244,9 @@ public class Drawing extends JPanel implements MouseMotionListener{
         		break;
         	default:
         }
+        if (showField) {
+        	electricField();
+        }
     }
     
     // Enregistre l'image 
@@ -267,20 +302,47 @@ public class Drawing extends JPanel implements MouseMotionListener{
     public void setShowM(boolean showM) {
     	this.showM = showM;
     }
+    
+    public void setShowQ(boolean showQ) {
+    	this.showQ = showQ;
+    }
+    
+    public void setShowField(boolean showField) {
+    	this.showField = showField;
+    }
 	
-    // Methodes de MouseMotionListener
+    // Methodes de MouseListener
 	@Override
-	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	// Mise à jour du pot au cursor
-	@Override
-	public void mouseMoved(MouseEvent e) {
+	public void mouseClicked(MouseEvent e) {
 		if (mode=="Grad") {
 			x = e.getX();
 			y = e.getY();
 			this.repaint();
+			firstclick = true;
 		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -20,7 +20,7 @@ public class Control extends JPanel {
     private static Help panelHelp;
     
     // Constucteur
-    private Potentiel p;
+    private Potential p;
     
     // Stockage du potentiel en chaques points
     private double[][] pot;
@@ -36,16 +36,17 @@ public class Control extends JPanel {
     
     // Variables d'etat utilises par PanPara
     boolean Gradientselected=false;
-    boolean Champselected=false;
+    boolean Fieldselected=false;
     boolean Equipoteselected=false;
     boolean ShowCoordselected=false;
     boolean ShowMselected=false;
+    boolean ShowQselected=false;
     
     // Bouton enregistrer
     private JButton Enregistrer;
     
     // Constructeur de Control
-    public Control(Potentiel p) {
+    public Control(Potential p) {
     	this.p =p;
     	this.setPreferredSize(new Dimension(200,180));
     	
@@ -383,23 +384,23 @@ public class Control extends JPanel {
         	   double yM= ((double)(int)(Double.parseDouble(ytextM.getText())*100))/100;
         	   
         	   // Enregistrement des valeurs saisies dans A,B et M
-        	   p.getA().setQ(qA*1e-9);
+        	   p.getA().setQ(qA);
         	   p.getA().getPoint().setX(xA);
         	   p.getA().getPoint().setY(yA);
-        	   p.getB().setQ(qB*1e-9);
+        	   p.getB().setQ(qB);
         	   p.getB().getPoint().setX(xB);
         	   p.getB().getPoint().setY(yB);
         	   p.getM().setX(xM);
         	   p.getM().setY(yM);
         	   
         	   // Calcul du champ electrique (utilise pour le gradient)
-        	   ElectricField Field = new ElectricField(p);
-        	   pot = Field.getElectricField();
-        	   plus = Field.getElectricFieldPlus();
-        	   minus = Field.getElectricFieldMinus();
+        	   PotentialField Field = new PotentialField(p);
+        	   pot = Field.getPotentialField();
+        	   plus = Field.getPotentialFieldPlus();
+        	   minus = Field.getPotentialFieldMinus();
         	   
         	   //Calcul du pot en M
-        	   p.calculPotentiel(p.getA(), p.getB(), p.getM());
+        	   p.calculPotential(p.getA(), p.getB(), p.getM());
         	   System.out.println("Le potentiel en M est: "+p.getV());
         	   
         	   // Setters de Drawing
@@ -435,24 +436,26 @@ public class Control extends JPanel {
     	Button.setLayout(new BoxLayout(Button, BoxLayout.Y_AXIS));
     	Button.setAlignmentX(Component.CENTER_ALIGNMENT);
     	JRadioButton Gradient = new JRadioButton("Gradient");
-        JRadioButton Champ = new JRadioButton("Champ Electrique");
+        JRadioButton Field = new JRadioButton("Champ Electrique");
         JRadioButton Equipote = new JRadioButton("Equipotentiel");
         JRadioButton ShowCoord = new JRadioButton("Afficher les Coordonnées");
         JRadioButton ShowM = new JRadioButton("Afficher M");
+        JRadioButton ShowQ = new JRadioButton("Afficher les charges");
         Button.add(Gradient);
-        Button.add(Champ);
+        Button.add(Field);
         Button.add(Equipote);
         Button.add(ShowCoord);
         Button.add(ShowM);
+        Button.add(ShowQ);
         Button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
         panPara.add(Button);
         
         // Creation des sous-panneaux de parametre
         JPanel panGradient = new JPanel();
-        JPanel panChamp = new JPanel();
+        JPanel panField = new JPanel();
         JPanel panEquipote = new JPanel();
         panGradient.setVisible(false);
-    	panChamp.setVisible(false);
+    	panField.setVisible(false);
     	panEquipote.setVisible(false);
     	
     	// Listener des JRadioButton
@@ -465,15 +468,15 @@ public class Control extends JPanel {
 			}
     	    };
     	Gradient.addChangeListener(GradientselectedListener);
-    	ChangeListener ChampselectedListener = new ChangeListener() {
+    	ChangeListener FieldselectedListener = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				AbstractButton aButton = (AbstractButton)e.getSource();
     	        ButtonModel aModel = aButton.getModel();
-    	        Champselected = aModel.isSelected();
+    	        Fieldselected = aModel.isSelected();
 			}
     	    };
-    	Champ.addChangeListener(ChampselectedListener);
+    	Field.addChangeListener(FieldselectedListener);
     	ChangeListener EquipoteselectedListener = new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -501,46 +504,44 @@ public class Control extends JPanel {
     		}
             };
         ShowM.addChangeListener(ShowMselectedListener);
+        ChangeListener ShowQselectedListener = new ChangeListener() {
+    		@Override
+    		public void stateChanged(ChangeEvent e) {
+    			AbstractButton aButton = (AbstractButton)e.getSource();
+                ButtonModel aModel = aButton.getModel();
+                ShowQselected = aModel.isSelected();
+    		}
+            };
+        ShowQ.addChangeListener(ShowQselectedListener);
         
         Gradient.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
-        	if (!Gradientselected) panelDrawing.setMode("Clas");
-            panChamp.setVisible(Champselected);
-        	panEquipote.setVisible(Equipoteselected);
-        	panelDrawing.setShowCoord(ShowCoordselected);
-        	panelDrawing.setShowM(ShowMselected);
+        	if (!Gradientselected) {
+        		panelDrawing.setMode("Clas");
+        		panelHelp.setText("Appuyer sur le graphique pour un potentiel précis");
+        	}
+        	else panelHelp.setText("Help Panel");
         	panelDrawing.repaint();
             });
-        Champ.addActionListener((ActionEvent evt) -> {
-        	panGradient.setVisible(Gradientselected);
-            panChamp.setVisible(Champselected);
-        	panEquipote.setVisible(Equipoteselected);
-        	panelDrawing.setShowCoord(ShowCoordselected);
-        	panelDrawing.setShowM(ShowMselected);
+        Field.addActionListener((ActionEvent evt) -> {
+            panField.setVisible(Fieldselected);
+            panelDrawing.setShowField(Fieldselected);
         	panelDrawing.repaint();
             });
         Equipote.addActionListener((ActionEvent evt) -> {
-        	panGradient.setVisible(Gradientselected);
-            panChamp.setVisible(Champselected);
         	panEquipote.setVisible(Equipoteselected);
-        	panelDrawing.setShowCoord(ShowCoordselected);
-        	panelDrawing.setShowM(ShowMselected);
         	panelDrawing.repaint();
             });
         ShowCoord.addActionListener((ActionEvent evt) -> {
-        	panGradient.setVisible(Gradientselected);
-            panChamp.setVisible(Champselected);
-        	panEquipote.setVisible(Equipoteselected);
         	panelDrawing.setShowCoord(ShowCoordselected);
-        	panelDrawing.setShowM(ShowMselected);
         	panelDrawing.repaint();
             });
         ShowM.addActionListener((ActionEvent evt) -> {
-        	panGradient.setVisible(Gradientselected);
-            panChamp.setVisible(Champselected);
-        	panEquipote.setVisible(Equipoteselected);
-        	panelDrawing.setShowCoord(ShowCoordselected);
         	panelDrawing.setShowM(ShowMselected);
+        	panelDrawing.repaint();
+            });
+        ShowQ.addActionListener((ActionEvent evt) -> {
+        	panelDrawing.setShowQ(ShowQselected);
         	panelDrawing.repaint();
             });
         

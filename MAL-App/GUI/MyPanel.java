@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 
 import Business.Particule;
 import Business.Point;
-import Business.Potentiel;
+import Business.Potential;
 
 public class MyPanel extends JPanel {
 	 private static final long serialVersionUID = 1L;
@@ -16,7 +16,7 @@ public class MyPanel extends JPanel {
 	        Particule A = new Particule("A");
 	        Particule B = new Particule("B");
 	        Point M = new Point("M");
-	        Potentiel p = new Potentiel("Potentiel", A, B ,M);
+	        Potential p = new Potential("Potentiel", A, B ,M);
 	        
 	        Status panelStatus = new Status();
 	        Control panelControl = new Control(p);
