@@ -96,7 +96,7 @@ public class Drawing extends JPanel implements MouseListener{
     	double norm, ei, ej;
     	int x0, y0, x1, y1, x2, y2;
     	int densite = 30;
-    	int longueur = 1;
+    	int longueur = 2;
     	double t;
     	for (int y = 0; y < height; y=y+densite) {
     		for (int x = 0; x < width; x=x+densite) {
