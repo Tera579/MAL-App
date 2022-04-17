@@ -144,7 +144,6 @@ public class Drawing extends JPanel implements MouseListener{
     	for (i = 0; i < height; i++) {
     		for (j = 0; j < width; j++) {
     			c = ColorGradient.getColorGradient(pot[i][j], plus, minus, nbrColor);
-    			if (pot[i][j]==0) c = Color.BLACK;
     			image.setRGB(j, i, c.getRGB());
     		}
         }
