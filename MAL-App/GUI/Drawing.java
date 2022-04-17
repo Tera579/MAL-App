@@ -91,15 +91,30 @@ public class Drawing extends JPanel implements MouseListener{
      * sont pas top, essayez d'en trouver une autre plus juste, qui fonctionne tjrs
      */
     public void electricField() {
-    	ElectricField eleF = new ElectricField(p);
     	Electric elc = new Electric();
     	Point ElecPoint;
-	
-    	for (int i = 0; i < height; i=i+10) {
-    		for (int j = 0; j < width; j=j+10) {
-    			ElecPoint = new Point(Conversion.pixeldoubleX(j), Conversion.pixeldoubleY(i), "Field"); 
+    	double norm, ei, ej;
+    	int x0, y0, x1, y1, x2, y2;
+    	int densite = 30;
+    	int longueur = 1;
+    	double t;
+    	for (int y = 0; y < height; y=y+densite) {
+    		for (int x = 0; x < width; x=x+densite) {
+    			ElecPoint = new Point(Conversion.pixeldoubleX(x), Conversion.pixeldoubleY(y), "Field"); 
     			elc.calculElectric(p.getA(), p.getB(), ElecPoint);
-    			g2.drawLine(j, i, j+(int)(elc.geti()), i-(int)(elc.getj()));
+    			ei = elc.geti();
+    			ej = elc.getj();
+    			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
+    			x0 = x+(int)(ei/norm*ech/5*longueur);
+    			y0 = y-(int)(ej/norm*ech/5*longueur);
+    			t = Math.atan2(y-y0, x-x0)-Math.PI;
+    			g2.drawLine(x, y, x0, y0); // ligne de la fleche
+    			x1 = x0 - (int)(Math.cos(t+Math.PI/4)*5);
+    			y1 = y0 - (int)(Math.sin(t+Math.PI/4)*5);
+    			g2.drawLine(x0, y0, x1, y1);
+    			x2 = x0 - (int)(Math.cos(t-Math.PI/4)*5);
+    			y2 = y0 - (int)(Math.sin(t-Math.PI/4)*5);
+    			g2.drawLine(x0, y0, x2, y2);
     		}
     	}
     }

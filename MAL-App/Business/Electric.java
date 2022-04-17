@@ -22,8 +22,8 @@ public class Electric {
         double qa = this.a.q*1e-9;
         double qb = this.b.q*1e-9;
         double c = (double) 1 / (4 * Math.PI * 8.85419782e-12);
-        double eA =  ((double)((int)((c * qa / Math.pow(da, 2)*100))))/100;
-        double eB =  ((double)((int)((c * qb / Math.pow(db, 2)*100))))/100;
+        double eA =  (c * qa / Math.pow(da, 2));
+        double eB =  (c * qb / Math.pow(db, 2));
         i = eA*(calculM.getX()-a.getPoint().getX())/da + eB*(calculM.getX()-b.getPoint().getX())/db;
         j = eA*(calculM.getY()-a.getPoint().getY())/da + eB*(calculM.getY()-b.getPoint().getY())/db;
     }
