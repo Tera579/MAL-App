@@ -25,10 +25,4 @@ public class ColorGradient {
 		if (p==0.0) c = Color.getHSBColor((float) 0.30, 1, 1);
 		return c;
 	}
-	public static Color getColorGradient(double p, int nbrColor) {
-		//HSB 
-			c = Color.getHSBColor((float) (((double)(((int)((p)*nbrColor))))/nbrColor), 1, 1);
-			
-			return c;
-		}
 }

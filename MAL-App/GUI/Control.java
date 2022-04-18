@@ -401,10 +401,11 @@ public class Control extends JPanel {
         	   
         	   //Calcul du pot en M
         	   p.calculPotential(p.getA(), p.getB(), p.getM());
-        	   System.out.println("Le potentiel en M est: "+p.getV());
+        	   System.out.println("Le potentiel en M est: "+p.getV()+"V");
         	   
         	   // Setters de Drawing
-        	   panelDrawing.setMode("Clas");
+        	   if (Gradientselected) panelDrawing.setMode("Grad");
+        	   else panelDrawing.setMode("Clas");
         	   panelDrawing.setPot(pot, plus, minus);
         	   panelDrawing.repaint();
         	   
@@ -520,7 +521,10 @@ public class Control extends JPanel {
         		panelDrawing.setMode("Clas");
         		panelHelp.setText("Appuyer sur le graphique pour un potentiel précis");
         	}
-        	else panelHelp.setText("Help Panel");
+        	else {
+        		panelDrawing.setMode("Grad");
+        		panelHelp.setText("Help Panel");
+        	}
         	panelDrawing.repaint();
             });
         Field.addActionListener((ActionEvent evt) -> {
@@ -594,7 +598,72 @@ public class Control extends JPanel {
     	panGradient.add(ValiderNbrColor);
     	panPara.add(panGradient);
     	
-    	// Sous-panneau Champ
+    	// Sous-panneau Field
+    	panField.setLayout(new GridLayout(0,1));
+        
+        // Texte "Champ Electrique"
+        JPanel labelWrapperField = new JPanel();
+    	JLabel labelField = new JLabel("Champ Electrique", SwingConstants.CENTER);
+    	labelField.setBackground(Color.BLACK);
+    	labelField.setOpaque(true);
+    	labelField.setForeground(Color.WHITE);
+    	labelWrapperField.add(labelGradient);
+    	panField.add(labelWrapperField);
+    	
+    	// Text "Densite vectoriel" et de la zone de saisie associé
+    	JPanel panField1 = new JPanel();
+    	panField1.add(new JLabel("Densite vectoriel :"));
+    	JFormattedTextField densite = new JFormattedTextField() ;
+    	densite.setBackground(getBackground());
+    	densite.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+    	densite.setHorizontalAlignment(JTextField.CENTER);
+    	densite.setText("30");
+    	densite.setColumns(3);
+    	panField1.add(densite);
+    	
+    	// Text "Longueur des vecteurs" et de la zone de saisie associé
+    	JPanel panField2 = new JPanel();
+    	panField2.add(new JLabel("Longueur des vecteurs :"));
+    	JFormattedTextField longueur = new JFormattedTextField() ;
+    	longueur.setBackground(getBackground());
+    	longueur.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+    	longueur.setHorizontalAlignment(JTextField.CENTER);
+    	longueur.setText("2");
+    	longueur.setColumns(3);
+    	panField2.add(longueur);
+    	
+    	// JButton ValiderDensiteLongueur
+    	JButton ValiderDensiteLongueur = new JButton("Valider"); 
+    	
+    	
+    	// Listener de ValiderDensite
+    	ValiderDensiteLongueur.addActionListener((ActionEvent evt) -> {
+    		boolean passField = true;
+    		if (Fieldselected) {
+            	// Vérifier si les valeurs saisies sont conformes
+            	try{
+            		Double.parseDouble(densite.getText());
+            		Double.parseDouble(longueur.getText());
+            	}
+            	catch(NumberFormatException a){
+            		passField=false;
+            		densite.setText("30");
+            		longueur.setText("2");
+            		System.out.println("la densite ou la longueur est non conforme");}
+            	
+            	// Action effectue si les valeurs sont conformes
+            	if (passField) {
+            		panelDrawing.setField((int)(Double.parseDouble(longueur.getText())), (int)(Double.parseDouble(densite.getText())));
+            		panelDrawing.setShowField(true);
+            		panelDrawing.repaint();
+            	}
+    		}
+            });
+    	panField.add(panField1);
+    	panField.add(panField2);
+    	panField.add(ValiderDensiteLongueur);
+    	panPara.add(panField);
+    	
     	
     	// Sous-panneau Equipote
     }

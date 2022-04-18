@@ -42,7 +42,11 @@ public class Drawing extends JPanel implements MouseListener{
 	private double[][] pot;
 	private double minus;
 	private double plus;
-	private int nbrColor;
+	private int nbrColor=25;
+	
+	// Champ electirque
+	int densite = 30;
+	int longueur = 2;
 	
 	// Cursor
 	int x,y;
@@ -95,11 +99,10 @@ public class Drawing extends JPanel implements MouseListener{
     	Point ElecPoint;
     	double norm, ei, ej;
     	int x0, y0, x1, y1, x2, y2;
-    	int densite = 30;
-    	int longueur = 2;
     	double t;
-    	for (int y = 0; y < height; y=y+densite) {
-    		for (int x = 0; x < width; x=x+densite) {
+    	int pas = (int)(width/densite);
+    	for (int y = -1; y < height; y=y+pas) {
+    		for (int x = -1; x < width; x=x+pas) {
     			ElecPoint = new Point(Conversion.pixeldoubleX(x), Conversion.pixeldoubleY(y), "Field"); 
     			elc.calculElectric(p.getA(), p.getB(), ElecPoint);
     			ei = elc.geti();
@@ -129,7 +132,6 @@ public class Drawing extends JPanel implements MouseListener{
     	else text = "A";
     	g2.drawString(text, xpixel+10, ypixel+10);
     	if (showQ) g2.drawString(Double.toString(p.getA().getQ())+"nC", xpixel+10, ypixel+25);
-    	System.out.println("charge A="+Double.toString(p.getA().getQ()));
     }
 	public void traceB() {
 		g2.setColor(Color.BLACK);
@@ -153,7 +155,7 @@ public class Drawing extends JPanel implements MouseListener{
     }
     
     // Color le graphique en fonction du potentiel
-    public void gradient() {
+    public void gradientColor() {
     	int i,j;
     	Color c=null;
     	for (i = 0; i < height; i++) {
@@ -163,7 +165,9 @@ public class Drawing extends JPanel implements MouseListener{
     		}
         }
     	g2.drawImage(image, null, 0, 0);
-    	
+    }
+    
+    public void gradientScale() {
     	int nbrColorMax = 50; // Au dessu de 50, des erreurs d'aproximation forme des lignes transparentes sur l'echelle
 		if (nbrColor<=50) nbrColorMax = nbrColor;
     	for (int x=1; x<=nbrColorMax; x++) {
@@ -182,7 +186,6 @@ public class Drawing extends JPanel implements MouseListener{
     	g2.drawLine(width-130, height-40, width-130, height-15);
     	g2.drawString(Double.toString(plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
     }
-    
     // Trace les Axes et les graduations
     public void traceAxes() {
         g2.setColor(Color.BLACK);
@@ -250,16 +253,18 @@ public class Drawing extends JPanel implements MouseListener{
                 traceAxes();
         		break;
         	case "Grad":
-        		gradient();
+        		gradientColor();
         		traceA();
                 traceB();
         	    if (showM) traceM();
                 traceAxes();
+                gradientScale();
         		break;
         	default:
         }
         if (showField) {
         	electricField();
+        	if (mode=="Grad") gradientScale(); // repaint l'echelle de gradient sur le field
         }
     }
     
@@ -323,6 +328,11 @@ public class Drawing extends JPanel implements MouseListener{
     
     public void setShowField(boolean showField) {
     	this.showField = showField;
+    }
+    
+    public void setField(int longueur, int densite) {
+    	this.longueur = longueur;
+    	this.densite = densite;
     }
 	
     // Methodes de MouseListener
