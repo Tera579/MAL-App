@@ -438,7 +438,7 @@ public class Control extends JPanel {
     	Button.setAlignmentX(Component.CENTER_ALIGNMENT);
     	JRadioButton Gradient = new JRadioButton("Gradient");
         JRadioButton Field = new JRadioButton("Champ Electrique");
-        JRadioButton Equipote = new JRadioButton("Equipotentiel");
+        JRadioButton Equipote = new JRadioButton("Equipotentielle");
         JRadioButton ShowCoord = new JRadioButton("Afficher les Coordonnées");
         JRadioButton ShowM = new JRadioButton("Afficher M");
         JRadioButton ShowQ = new JRadioButton("Afficher les charges");
@@ -519,11 +519,11 @@ public class Control extends JPanel {
         	panGradient.setVisible(Gradientselected);
         	if (!Gradientselected) {
         		panelDrawing.setMode("Clas");
-        		panelHelp.setText("Appuyer sur le graphique pour un potentiel précis");
+        		panelHelp.setText("Help Panel");
         	}
         	else {
         		panelDrawing.setMode("Grad");
-        		panelHelp.setText("Help Panel");
+        		panelHelp.setText("Appuyer sur le graphique pour un potentiel précis");
         	}
         	panelDrawing.repaint();
             });
@@ -607,7 +607,7 @@ public class Control extends JPanel {
     	labelField.setBackground(Color.BLACK);
     	labelField.setOpaque(true);
     	labelField.setForeground(Color.WHITE);
-    	labelWrapperField.add(labelGradient);
+    	labelWrapperField.add(labelField);
     	panField.add(labelWrapperField);
     	
     	// Text "Densite vectoriel" et de la zone de saisie associé
