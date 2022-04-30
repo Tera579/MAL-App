@@ -56,7 +56,12 @@ public class Drawing extends JPanel implements MouseListener{
 	private boolean showCoord;
 	String text;
 	int xpixel, ypixel;
-	private boolean showM;
+	
+	// Equipotentiell
+	private double[][] MCoord;
+	
+	//private boolean
+	private boolean showEquipote;
 	private boolean showField;
 	private boolean showQ;
 	
@@ -91,9 +96,6 @@ public class Drawing extends JPanel implements MouseListener{
         
     }
     // Trace le champ electrique
-    /* J'ai deux methodes pour tracer une ligne de champ sur m mais elle ne 
-     * sont pas top, essayez d'en trouver une autre plus juste, qui fonctionne tjrs
-     */
     public void electricField() {
     	Electric elc = new Electric();
     	Point ElecPoint;
@@ -122,6 +124,18 @@ public class Drawing extends JPanel implements MouseListener{
     	}
     }
     
+    public void equipote() {
+    	try {
+    		for (int i=0; i<100; i++) {
+    		if (MCoord[i][0]!=0) g2.drawString("M"+i+"("+MCoord[i][0]+";"+MCoord[i][1]+")", 100, 30*i+30);
+    	};
+    	}
+    	catch(NullPointerException a){
+    		
+    	}
+    	
+    	
+    }
     // Trace les points
     public void traceA() {
     	g2.setColor(Color.BLACK);
@@ -142,18 +156,8 @@ public class Drawing extends JPanel implements MouseListener{
     	else text = "B";
     	g2.drawString(text, xpixel+10, ypixel+10);
     	if (showQ) g2.drawString(Double.toString(p.getB().getQ())+"nC", xpixel+10, ypixel+25);
-	}        
-	public void traceM() {
-    	g2.setColor(Color.BLACK);
-    	xpixel = Conversion.doublepixelX(p.getM().getX());
-    	ypixel = Conversion.doublepixelY(p.getM().getY());
-    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
-    	if (showCoord) text = "M ("+p.getM().getX()+";"+p.getM().getY()+")";
-    	else text = "M";
-    	g2.drawString(text, xpixel+10, ypixel+10);
-    	g2.drawString(Double.toString(pot[ypixel][xpixel])+"V", xpixel+10, ypixel+25);
-    }
-    
+	}      
+	
     // Color le graphique en fonction du potentiel
     public void gradientColor() {
     	int i,j;
@@ -168,12 +172,10 @@ public class Drawing extends JPanel implements MouseListener{
     }
     
     public void gradientScale() {
-    	int nbrColorMax = 50; // Au dessu de 50, des erreurs d'aproximation forme des lignes transparentes sur l'echelle
-		if (nbrColor<=50) nbrColorMax = nbrColor;
-    	for (int x=1; x<=nbrColorMax; x++) {
-    		double h = ((double)x)*0.65/((double)nbrColorMax);
+    	for (int x=1; x<=nbrColor; x++) {
+    		double h = ((double)x)*0.65/((double)nbrColor);
     		g2.setColor(Color.getHSBColor((float) h, 1, 1));
-    		g2.fillRect(width-230-(int)(200/(double)nbrColorMax)+(int)((double)(x*200)/(double)nbrColorMax), height-40, (int)(200/(double)nbrColorMax), 25);
+    		g2.fillRect(width-230-(int)(200/(double)nbrColor)+(int)((double)(x*200)/(double)nbrColor), height-40, (int)(200/(double)nbrColor)+1, 25);
     	}
     	g2.setColor(Color.BLACK);
     	g2.drawRect(width-230, height-40, 200, 25);
@@ -249,14 +251,14 @@ public class Drawing extends JPanel implements MouseListener{
         	case "Clas":
         		traceA();
                 traceB();
-        	    if (showM) traceM();
+        	    //if (showM) traceM();
                 traceAxes();
         		break;
         	case "Grad":
         		gradientColor();
         		traceA();
                 traceB();
-        	    if (showM) traceM();
+        	    //if (showM) traceM();
                 traceAxes();
                 gradientScale();
         		break;
@@ -264,6 +266,10 @@ public class Drawing extends JPanel implements MouseListener{
         }
         if (showField) {
         	electricField();
+        	if (mode=="Grad") gradientScale(); // repaint l'echelle de gradient sur le field
+        }
+        if (showEquipote) {
+        	equipote();
         	if (mode=="Grad") gradientScale(); // repaint l'echelle de gradient sur le field
         }
     }
@@ -318,16 +324,21 @@ public class Drawing extends JPanel implements MouseListener{
     	this.showCoord = showCoord;
     }
     
-    public void setShowM(boolean showM) {
-    	this.showM = showM;
-    }
-    
     public void setShowQ(boolean showQ) {
     	this.showQ = showQ;
+    	System.out.println(showQ);
     }
     
     public void setShowField(boolean showField) {
     	this.showField = showField;
+    }
+    
+    public void setShowEquipote(boolean showEquipote) {
+    	this.showEquipote = showEquipote;
+    }
+    
+    public void setEquipote(double[][] MCoord) {
+    	this.MCoord = MCoord;
     }
     
     public void setField(int longueur, int densite) {

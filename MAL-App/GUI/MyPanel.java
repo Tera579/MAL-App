@@ -15,8 +15,7 @@ public class MyPanel extends JPanel {
 	        this.setLayout(new BorderLayout());  
 	        Particule A = new Particule("A");
 	        Particule B = new Particule("B");
-	        Point M = new Point("M");
-	        Potential p = new Potential("Potentiel", A, B ,M);
+	        Potential p = new Potential("Potentiel", A, B);
 	        
 	        Status panelStatus = new Status();
 	        Control panelControl = new Control(p);

@@ -15,10 +15,9 @@ public class Potential {
     protected Point m; 
     protected double v;
 
-    public Potential(String name, Particule A, Particule B, Point M) {
+    public Potential(String name, Particule A, Particule B) {
     	this.a = A;
     	this.b = B;
-    	this.m = M;
     }
     
 
