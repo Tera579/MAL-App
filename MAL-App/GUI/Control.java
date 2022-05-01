@@ -2,6 +2,7 @@ package GUI;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -45,9 +46,11 @@ public class Control extends JPanel {
     boolean Gradientselected=false;
     boolean Fieldselected=false;
     boolean Equipoteselected=false;
+    boolean FieldLinesselected=false;
     boolean ShowCoordselected=false;
     boolean ShowMselected=false;
     boolean ShowQselected=false;
+    boolean showFieldLinesDirection=false;
     
     // Bouton enregistrer
     private JButton Enregistrer;
@@ -353,8 +356,6 @@ public class Control extends JPanel {
         	   double qB= ((double)(int)(Double.parseDouble(qtextB.getText())*100))/100;
         	   double xB= ((double)(int)(Double.parseDouble(xtextB.getText())*100))/100;
         	   double yB= ((double)(int)(Double.parseDouble(ytextB.getText())*100))/100;
-        	   //double xM= ((double)(int)(Double.parseDouble(xtextM.getText())*100))/100;
-        	   //double yM= ((double)(int)(Double.parseDouble(ytextM.getText())*100))/100;
         	   
         	   // Enregistrement des valeurs saisies dans A,B et M
         	   p.getA().setQ(qA);
@@ -363,8 +364,6 @@ public class Control extends JPanel {
         	   p.getB().setQ(qB);
         	   p.getB().getPoint().setX(xB);
         	   p.getB().getPoint().setY(yB);
-        	   //p.getM().setX(xM);
-        	   //p.getM().setY(yM);
         	   
         	   // Calcul du champ electrique (utilise pour le gradient)
         	   PotentialField Field = new PotentialField(p);
@@ -408,11 +407,13 @@ public class Control extends JPanel {
     	JRadioButton Gradient = new JRadioButton("Gradient");
         JRadioButton Field = new JRadioButton("Champ Electrique");
         JRadioButton Equipote = new JRadioButton("Equipotentielle");
+        JRadioButton FieldLines = new JRadioButton("Lignes de Champ");
         JRadioButton ShowCoord = new JRadioButton("Afficher les Coordonnées");
-        JRadioButton ShowQ = new JRadioButton("Afficher les charges");
+        JRadioButton ShowQ = new JRadioButton("Afficher les Charges");
         Button.add(Gradient);
         Button.add(Field);
         Button.add(Equipote);
+        Button.add(FieldLines);
         Button.add(ShowCoord);
         Button.add(ShowQ);
         Button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
@@ -422,9 +423,11 @@ public class Control extends JPanel {
         JPanel panGradient = new JPanel();
         JPanel panField = new JPanel();
         JPanel panEquipote = new JPanel();
+        JPanel panFieldLines = new JPanel();
         panGradient.setVisible(false);
     	panField.setVisible(false);
     	panEquipote.setVisible(false);
+    	panFieldLines.setVisible(false);
     	
     	// Listener des JRadioButton
     	ChangeListener GradientselectedListener = new ChangeListener() {
@@ -454,6 +457,15 @@ public class Control extends JPanel {
 			}
     	    };
     	 Equipote.addChangeListener(EquipoteselectedListener);
+    	 ChangeListener FieldLinesselectedListener = new ChangeListener() {
+ 			@Override
+ 			public void stateChanged(ChangeEvent e) {
+ 				AbstractButton aButton = (AbstractButton)e.getSource();
+     	        ButtonModel aModel = aButton.getModel();
+     	        FieldLinesselected = aModel.isSelected();
+ 			}
+     	    };
+     	 FieldLines.addChangeListener(FieldLinesselectedListener);
     	 ChangeListener ShowCoordselectedListener = new ChangeListener() {
     		@Override
     		public void stateChanged(ChangeEvent e) {
@@ -493,6 +505,11 @@ public class Control extends JPanel {
         Equipote.addActionListener((ActionEvent evt) -> {
         	panEquipote.setVisible(Equipoteselected);
         	panelDrawing.setShowEquipote(Equipoteselected);
+        	panelDrawing.repaint();
+            });
+        FieldLines.addActionListener((ActionEvent evt) -> {
+        	panFieldLines.setVisible(FieldLinesselected);
+        	panelDrawing.setShowFieldLines(FieldLinesselected);
         	panelDrawing.repaint();
             });
         ShowCoord.addActionListener((ActionEvent evt) -> {
@@ -637,62 +654,184 @@ public class Control extends JPanel {
     	labelWrapperEquipote.add(labelEquipote);
     	panEquipote.add(labelWrapperEquipote);
     	
-    	// Saisie des points M
-        JFormattedTextField xtextM = new JFormattedTextField() ;
-        xtextM.setBackground(getBackground());
-        xtextM.setColumns(2);
-        xtextM.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-        xtextM.setHorizontalAlignment(JTextField.CENTER);
-        xtextM.setPreferredSize(new Dimension(35,20));
-        JFormattedTextField  ytextM = new JFormattedTextField() ;
-        ytextM.setBackground(getBackground());
-        ytextM.setColumns(2);
-        ytextM.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-        ytextM.setHorizontalAlignment(JTextField.CENTER);
-        ytextM.setPreferredSize(new Dimension(35,20));
+    	// Saisie des points M0
+        JTextField xtextM0 = new JFormattedTextField() ;
+        xtextM0.setBackground(getBackground());
+        xtextM0.setColumns(2);
+        xtextM0.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+        xtextM0.setHorizontalAlignment(JTextField.CENTER);
+        xtextM0.setPreferredSize(new Dimension(35,20));
+        JTextField  ytextM0 = new JFormattedTextField() ;
+        ytextM0.setBackground(getBackground());
+        ytextM0.setColumns(2);
+        ytextM0.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+        ytextM0.setHorizontalAlignment(JTextField.CENTER);
+        ytextM0.setPreferredSize(new Dimension(35,20));
 
-        JPanel MXY = new JPanel(new GridBagLayout());
+        JPanel MXY0 = new JPanel(new GridBagLayout());
         JLabel nbrMtext = new JLabel("M"+nbrMint+"=(");
-        MXY.add(nbrMtext);
-        MXY.add(xtextM);
-        MXY.add(new JLabel(";"));
-        MXY.add(ytextM);
-        MXY.add(new JLabel(")"));
+        MXY0.add(nbrMtext);
+        MXY0.add(xtextM0);
+        MXY0.add(new JLabel(";"));
+        MXY0.add(ytextM0);
+        MXY0.add(new JLabel(")"));
         
-        // Bouton Valider
-        JPanel Bouton = new JPanel();
-        JButton Valider = new JButton("Valider"); 
-        Bouton.add(Valider);
+        // Bouton Retour
+        JButton Retour = new JButton("Retour"); 
+        MXY0.add(Retour);
     	
-        // Action de Valider
-        Valider.addActionListener((ActionEvent evt) -> {
+        // Action d' Entrer
+        xtextM0.addActionListener((ActionEvent evt) -> {
         	boolean passXM=true;
             boolean passYM=true;
-            try{Double.parseDouble(xtextM.getText());}
+            try{Double.parseDouble(xtextM0.getText());}
         	catch(NumberFormatException a){
         		passXM=false;
-        		xtextM.setText("");
+        		xtextM0.setText("");
         		System.out.println("le X de M est non conforme");}
 
-            try{Double.parseDouble(ytextM.getText());}
+            try{Double.parseDouble(ytextM0.getText());}
         	catch(NumberFormatException a){
         		passYM=false;
-        		ytextM.setText("");
+        		ytextM0.setText("");
         		System.out.println("le Y de M est non conforme");}
             if (passXM && passYM) {
-            	MCoord[nbrMint][0]=Double.parseDouble(xtextM.getText());
-            	MCoord[nbrMint][1]=Double.parseDouble(ytextM.getText());
+            	MCoord[nbrMint][0]=Double.parseDouble(xtextM0.getText());
+            	MCoord[nbrMint][1]=Double.parseDouble(ytextM0.getText());
             	System.out.println(MCoord[nbrMint][0]+" "+MCoord[nbrMint][1]);
             	nbrMint++;
             	nbrMtext.setText("M"+nbrMint+"=(");
-            	panelDrawing.setEquipote(MCoord);
+            	panelDrawing.setEquipote(MCoord, nbrMint);
             	panelDrawing.repaint();
             }
         });
-        panEquipote.add(MXY);
-        panEquipote.add(Valider);
+        ytextM0.addActionListener((ActionEvent evt) -> {
+        	boolean passXM=true;
+            boolean passYM=true;
+            try{Double.parseDouble(xtextM0.getText());}
+        	catch(NumberFormatException a){
+        		passXM=false;
+        		xtextM0.setText("");
+        		System.out.println("le X de M est non conforme");}
+
+            try{Double.parseDouble(ytextM0.getText());}
+        	catch(NumberFormatException a){
+        		passYM=false;
+        		ytextM0.setText("");
+        		System.out.println("le Y de M est non conforme");}
+            if (passXM && passYM) {
+            	MCoord[nbrMint][0]=Double.parseDouble(xtextM0.getText());
+            	MCoord[nbrMint][1]=Double.parseDouble(ytextM0.getText());
+            	System.out.println(MCoord[nbrMint][0]+" "+MCoord[nbrMint][1]);
+            	nbrMint++;
+            	nbrMtext.setText("M"+nbrMint+"=(");
+            	panelDrawing.setEquipote(MCoord, nbrMint);
+            	panelDrawing.repaint();
+            }
+        });
+        
+        // Action de Retour
+        Retour.addActionListener((ActionEvent evt) -> {
+        	if (nbrMint>0) {
+        		nbrMint--;
+        		nbrMtext.setText("M"+nbrMint+"=(");
+        		panelDrawing.setEquipote(MCoord, nbrMint);
+        		panelDrawing.repaint();
+        	}
+            
+        });
+        panEquipote.add(MXY0);
         panPara.add(panEquipote);
-    }
+    
+    // Sous-panneau FieldLines
+	panFieldLines.setLayout(new GridLayout(0,1));
+    
+    // Texte "Lignes de Champ"
+    JPanel labelWrapperFieldLines = new JPanel();
+	JLabel labelFieldLines = new JLabel("Lignes de Champ", SwingConstants.CENTER);
+	labelFieldLines.setBackground(Color.BLACK);
+	labelFieldLines.setOpaque(true);
+	labelFieldLines.setForeground(Color.WHITE);
+	labelWrapperFieldLines.add(labelFieldLines);
+	panFieldLines.add(labelWrapperFieldLines);
+	
+	// Saisie des points M
+    JTextField xtextM = new JFormattedTextField() ;
+    xtextM.setBackground(getBackground());
+    xtextM.setColumns(2);
+    xtextM.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+    xtextM.setHorizontalAlignment(JTextField.CENTER);
+    xtextM.setPreferredSize(new Dimension(35,20));
+    JTextField  ytextM = new JFormattedTextField() ;
+    ytextM.setBackground(getBackground());
+    ytextM.setColumns(2);
+    ytextM.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
+    ytextM.setHorizontalAlignment(JTextField.CENTER);
+    ytextM.setPreferredSize(new Dimension(35,20));
+
+    JPanel MXY = new JPanel(new GridBagLayout());
+    MXY.add(new JLabel("M=("));
+    MXY.add(xtextM);
+    MXY.add(new JLabel(";"));
+    MXY.add(ytextM);
+    MXY.add(new JLabel(")"));
+	
+    // Afficher la direction des lignes de champ
+    JRadioButton FieldLinesDirection = new JRadioButton("Direction lignes de champ");
+    ChangeListener FieldLinesDirectionselectedListener = new ChangeListener() {
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			AbstractButton aButton = (AbstractButton)e.getSource();
+            ButtonModel aModel = aButton.getModel();
+            showFieldLinesDirection = aModel.isSelected();
+            try {panelDrawing.setFieldLines(Double.parseDouble(xtextM.getText()), Double.parseDouble(ytextM.getText()), showFieldLinesDirection);}
+            catch(NumberFormatException a) {}
+            panelDrawing.repaint();
+		}
+        };
+    FieldLinesDirection.addChangeListener(FieldLinesDirectionselectedListener);
+    
+    // Action d' Entrer
+    xtextM.addActionListener((ActionEvent evt) -> {
+       	boolean passXM=true;
+        boolean passYM=true;
+        try{Double.parseDouble(xtextM.getText());}
+        catch(NumberFormatException a){
+        	passXM=false;
+        	xtextM.setText("");
+        	System.out.println("le X de M est non conforme");}
+        try{Double.parseDouble(ytextM.getText());}
+        catch(NumberFormatException a){
+        	passYM=false;
+        	ytextM.setText("");
+        	System.out.println("le Y de M est non conforme");}
+        if (passXM && passYM) {
+            panelDrawing.setFieldLines(Double.parseDouble(xtextM.getText()), Double.parseDouble(ytextM.getText()), showFieldLinesDirection);
+           	panelDrawing.repaint();
+        }
+    });
+    ytextM.addActionListener((ActionEvent evt) -> {
+       	boolean passXM=true;
+        boolean passYM=true;
+        try{Double.parseDouble(xtextM.getText());}
+        catch(NumberFormatException a){
+        	passXM=false;
+        	xtextM.setText("");
+        	System.out.println("le X de M est non conforme");}
+        try{Double.parseDouble(ytextM.getText());}
+        catch(NumberFormatException a){
+        	passYM=false;
+        	ytextM.setText("");
+        	System.out.println("le Y de M est non conforme");}
+        if (passXM && passYM) {
+            panelDrawing.setFieldLines(Double.parseDouble(xtextM.getText()), Double.parseDouble(ytextM.getText()), showFieldLinesDirection);
+           	panelDrawing.repaint();
+        }
+    });
+    panFieldLines.add(MXY);
+    panFieldLines.add(FieldLinesDirection);
+    panPara.add(panFieldLines);
+}
     
     // Instancie les differents panneaux (par MyPanel)
     public void setpanelDrawing(Drawing panelDrawing) {

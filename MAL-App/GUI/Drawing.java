@@ -45,25 +45,32 @@ public class Drawing extends JPanel implements MouseListener{
 	private int nbrColor=25;
 	
 	// Champ electirque
-	int densite = 30;
-	int longueur = 2;
+	private int densite = 30;
+	private int longueur = 2;
 	
 	// Cursor
-	int x,y;
-	boolean firstclick=false;
+	private int x,y;
+	private boolean firstclick=false;
 	
 	// Affichage des Coordonnees
 	private boolean showCoord;
-	String text;
-	int xpixel, ypixel;
+	private String text;
+	private int xpixel, ypixel;
 	
-	// Equipotentiell
+	// Equipotentielle
 	private double[][] MCoord;
+	private int nbrMint;
+	
+	// FieldLines
+	private double xM;
+	private double yM;
+	private boolean showFieldLinesDirection;
 	
 	//private boolean
 	private boolean showEquipote;
 	private boolean showField;
 	private boolean showQ;
+	private boolean showFieldLines;
 	
 	// Constructeur de Drawing
     public Drawing(Potential p) {
@@ -126,15 +133,79 @@ public class Drawing extends JPanel implements MouseListener{
     
     public void equipote() {
     	try {
-    		for (int i=0; i<100; i++) {
-    		if (MCoord[i][0]!=0) g2.drawString("M"+i+"("+MCoord[i][0]+";"+MCoord[i][1]+")", 100, 30*i+30);
+    		for (int i=0; i<nbrMint; i++) {
+    			g2.setColor(Color.BLACK);
+    	    	xpixel = Conversion.doublepixelX(MCoord[i][0]);
+    	    	ypixel = Conversion.doublepixelY(MCoord[i][1]);
+    	    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
+    	    	if (showCoord) text = "M"+i+" ("+MCoord[i][0]+";"+MCoord[i][1]+")";
+    	    	else text = "M"+i;
+    	    	g2.drawString(text, xpixel+10, ypixel+10);
+    	    	g2.drawString(pot[ypixel][xpixel]+"V", xpixel+10, ypixel+25);
+    	    	
     	};
     	}
     	catch(NullPointerException a){
     		
     	}
-    	
-    	
+    }
+    
+    public void fieldLines() {
+    	Electric elc = new Electric();
+    	Point ElecPoint;
+    	double norm, ei, ej;
+    	int x0, y0;
+    	g2.setColor(Color.BLACK);
+    	xpixel = Conversion.doublepixelX(xM);
+    	ypixel = Conversion.doublepixelY(yM);
+    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
+    	if (showCoord) text = "M ("+xM+";"+yM+")";
+    	else text = "M";
+    	g2.drawString(text, xpixel+10, ypixel+10);
+    	for (int i=0; i<1000; i++) {
+    		ElecPoint = new Point(Conversion.pixeldoubleX(xpixel), Conversion.pixeldoubleY(ypixel), "Field"); 
+			elc.calculElectric(p.getA(), p.getB(), ElecPoint);
+			ei = elc.geti();
+			ej = elc.getj();
+			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
+			x0 = xpixel+(int)(ei/norm*10);
+			y0 = ypixel-(int)(ej/norm*10);
+			g2.drawLine(xpixel, ypixel, x0, y0);
+			if (i%5==0 && showFieldLinesDirection) {
+				double t = Math.atan2(ypixel-y0, xpixel-x0)-Math.PI;
+    			int x1 = x0 - (int)(Math.cos(t+Math.PI/4)*5);
+    			int y1 = y0 - (int)(Math.sin(t+Math.PI/4)*5);
+    			g2.drawLine(x0, y0, x1, y1);
+    			int x2 = x0 - (int)(Math.cos(t-Math.PI/4)*5);
+    			int y2 = y0 - (int)(Math.sin(t-Math.PI/4)*5);
+    			g2.drawLine(x0, y0, x2, y2);
+			}
+			xpixel = x0;
+			ypixel = y0;
+		}
+    	xpixel = Conversion.doublepixelX(xM);
+    	ypixel = Conversion.doublepixelY(yM);
+    	for (int j=0; j<1000; j++) {
+    		ElecPoint = new Point(Conversion.pixeldoubleX(xpixel), Conversion.pixeldoubleY(ypixel), "Field"); 
+			elc.calculElectric(p.getA(), p.getB(), ElecPoint);
+			ei = -elc.geti();
+			ej = -elc.getj();
+			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
+			x0 = xpixel+(int)(ei/norm*10);
+			y0 = ypixel-(int)(ej/norm*10);
+			g2.drawLine(xpixel, ypixel, x0, y0);
+			if (j%5==0 && showFieldLinesDirection) {
+				double t = Math.atan2(ypixel-y0, xpixel-x0)-Math.PI;
+    			int x1 = x0 + (int)(Math.cos(t+Math.PI/4)*5);
+    			int y1 = y0 + (int)(Math.sin(t+Math.PI/4)*5);
+    			g2.drawLine(x0, y0, x1, y1);
+    			int x2 = x0 + (int)(Math.cos(t-Math.PI/4)*5);
+    			int y2 = y0 + (int)(Math.sin(t-Math.PI/4)*5);
+    			g2.drawLine(x0, y0, x2, y2);
+			}
+			xpixel = x0;
+			ypixel = y0;
+    	}
     }
     // Trace les points
     public void traceA() {
@@ -264,14 +335,10 @@ public class Drawing extends JPanel implements MouseListener{
         		break;
         	default:
         }
-        if (showField) {
-        	electricField();
-        	if (mode=="Grad") gradientScale(); // repaint l'echelle de gradient sur le field
-        }
-        if (showEquipote) {
-        	equipote();
-        	if (mode=="Grad") gradientScale(); // repaint l'echelle de gradient sur le field
-        }
+        if (showField) electricField();
+        if (showEquipote) equipote();
+        if (showFieldLines) fieldLines();
+        if (mode=="Grad") gradientScale(); // repaint l'echelle de gradient sur le field
     }
     
     // Enregistre l'image 
@@ -337,8 +404,19 @@ public class Drawing extends JPanel implements MouseListener{
     	this.showEquipote = showEquipote;
     }
     
-    public void setEquipote(double[][] MCoord) {
+    public void setShowFieldLines(boolean showFieldLines) {
+    	this.showFieldLines = showFieldLines;
+    }
+    
+    public void setEquipote(double[][] MCoord, int nbrMint) {
     	this.MCoord = MCoord;
+    	this.nbrMint = nbrMint;
+    }
+    
+    public void setFieldLines(double xM, double yM, boolean showFieldLinesDirection) {
+    	this.xM = xM;
+    	this.yM = yM;
+    	this.showFieldLinesDirection = showFieldLinesDirection;
     }
     
     public void setField(int longueur, int densite) {
