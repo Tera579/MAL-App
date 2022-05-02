@@ -65,6 +65,7 @@ public class Drawing extends JPanel implements MouseListener{
 	private double xM;
 	private double yM;
 	private boolean showFieldLinesDirection;
+	private boolean firstFieldLinesSet=false;
 	
 	//private boolean
 	private boolean showEquipote;
@@ -337,7 +338,7 @@ public class Drawing extends JPanel implements MouseListener{
         }
         if (showField) electricField();
         if (showEquipote) equipote();
-        if (showFieldLines) fieldLines();
+        if (showFieldLines && firstFieldLinesSet) fieldLines();
         if (mode=="Grad") gradientScale(); // repaint l'echelle de gradient sur le field
     }
     
@@ -417,6 +418,7 @@ public class Drawing extends JPanel implements MouseListener{
     	this.xM = xM;
     	this.yM = yM;
     	this.showFieldLinesDirection = showFieldLinesDirection;
+    	firstFieldLinesSet = true;
     }
     
     public void setField(int longueur, int densite) {

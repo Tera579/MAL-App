@@ -27,9 +27,6 @@ public class Control extends JPanel {
     private double[][] pot;
     double plus, minus;
     
-    // Nombre de couleurs
-    private int nbrColorSet = 10;
-    
     // Variable de Equipote
     int nbrMint=0;
     double[][] MCoord = new double[100][2];
@@ -151,62 +148,43 @@ public class Control extends JPanel {
     	panEch.setLayout(new GridLayout(0,1));
     	
     	// Text "Paramètres Graphique"
-    	JPanel labelWrapper = new JPanel();
-    	JLabel label = new JLabel("Paramètres Graphique", SwingConstants.CENTER);
-    	label.setBackground(Color.BLACK);
-    	label.setOpaque(true);
-    	label.setForeground(Color.WHITE);
-    	labelWrapper.add(label);
+    	EntryABM Ech1 = new EntryABM("Paramètres Graphique", "", true);
+    	panEch.add(Ech1.getTextPanel());
     	
     	// Saisie de la graduation
-    	JPanel grad = new JPanel();
-    	grad.add(new JLabel("graduation ="));
-    	JFormattedTextField gradtext = new JFormattedTextField() ;
-    	gradtext.setBackground(getBackground());
-    	gradtext.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-    	gradtext.setHorizontalAlignment(JTextField.CENTER);
-    	gradtext.setColumns(4);
-    	gradtext.setText("1");
-    	grad.add(gradtext);
+    	EntryABM Ech2 = new EntryABM("Graduation =", "1", false);
+    	panEch.add(Ech2.getTextPanel());
     	
     	// Saisie de xmax
-    	JPanel xmax = new JPanel();
-    	xmax.add(new JLabel("xmax ="));
-    	JFormattedTextField xmaxtext = new JFormattedTextField() ;
-    	xmaxtext.setBackground(getBackground());
-    	xmaxtext.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-    	xmaxtext.setHorizontalAlignment(JTextField.CENTER);
-    	xmaxtext.setColumns(4);
-    	xmaxtext.setText("15");
-    	xmax.add(xmaxtext);
+    	EntryABM Ech3 = new EntryABM("Xmax =", "15", false);
+    	panEch.add(Ech3.getTextPanel());
     	
     	// Bouton Valider
         JButton Valider = new JButton("Valider"); 
         
         // Listener de Valider
         Valider.addActionListener((ActionEvent evt) -> {
-        	boolean pass = true;
         	
         	// Vérifier si les valeurs saisies sont conformes
-        	try{Double.parseDouble(gradtext.getText());}
-        	catch(NumberFormatException a){
-        		pass=false;
-        		gradtext.setText("1");
-        		System.out.println("le xmax est non conforme");}
-        	try{Double.parseDouble(xmaxtext.getText());}
-        	catch(NumberFormatException a){
-        		pass=false;
-        		xmaxtext.setText("15");
-        		System.out.println("l'echelle est non conforme");}
+        	boolean pass1=true, pass2=true;
+        	pass1 = Ech2.check("Text");
+        	pass2 = Ech3.check("Text");
         	
         	// Action effectue si les valeurs sont conformes
-        	if (pass) {
-        		double graddouble = Double.parseDouble(gradtext.getText());
-        		double xmaxdouble = Double.parseDouble(xmaxtext.getText());
-        		int realEch = (int)((panelDrawing.getWidth()-40)/(2*xmaxdouble));
+        	if (pass1 && pass2) {
+        		int grad = (int)Math.abs(Ech2.getTextDouble());
+        		int xmax = (int)Math.abs(Ech3.getTextDouble());
+        		
+        		if (grad==0) grad=1;
+        		if (xmax==0) xmax=1;
+        		
+        		Ech2.setText(grad);
+        		Ech3.setText(xmax);
+        		
+        		int realEch = (int)((panelDrawing.getWidth()-40)/(2*xmax));
         		
         		// Setters de Drawing et de Conversion
-        		panelDrawing.setEch(realEch, (int)xmaxdouble, (int)graddouble);
+        		panelDrawing.setEch(realEch, xmax, grad);
         		Conversion.setEch(realEch);
         		panelDrawing.setMode("Axes");
         		panelDrawing.repaint();
@@ -218,9 +196,6 @@ public class Control extends JPanel {
         	}
         	
             });
-        panEch.add(labelWrapper);
-        panEch.add(xmax);
-        panEch.add(grad);
         panEch.add(Valider);
     }
     
@@ -229,133 +204,38 @@ public class Control extends JPanel {
     	panPoint.setLayout(new GridLayout(0,1));
     	
     	// Texte "Coordonées des Points"
-    	JPanel labelWrapper = new JPanel();
-    	JLabel label = new JLabel("Coordonées des Points", SwingConstants.CENTER);
-    	label.setBackground(Color.BLACK);
-    	label.setOpaque(true);
-    	label.setForeground(Color.WHITE);
-    	labelWrapper.add(label);
+    	EntryABM Point1 = new EntryABM("Coordonées des Points", "", true);
+    	panPoint.add(Point1.getTextPanel());
     	
-    	// Saisie point A
-    	JFormattedTextField xtextA = new JFormattedTextField() ;
-    	xtextA.setBackground(getBackground());
-    	xtextA.setColumns(2);
-    	xtextA.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-    	xtextA.setHorizontalAlignment(JTextField.CENTER);
-        JFormattedTextField  ytextA = new JFormattedTextField() ;
-        ytextA.setBackground(getBackground());
-        ytextA.setColumns(2);
-        ytextA.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-        ytextA.setHorizontalAlignment(JTextField.CENTER);
-        JFormattedTextField qtextA = new JFormattedTextField() ;
-        qtextA.setBackground(getBackground());
-        qtextA.setColumns(2);
-        qtextA.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-        qtextA.setHorizontalAlignment(JTextField.CENTER);
-
-        JPanel AXYQ = new JPanel();
-        AXYQ.setLayout(new BoxLayout(AXYQ, BoxLayout.X_AXIS));
-        
-        AXYQ.add(new JLabel(" A=("));
-        AXYQ.add(xtextA);
-        AXYQ.add(new JLabel(";"));
-        AXYQ.add(ytextA);
-        AXYQ.add(new JLabel(")"));
-        AXYQ.add(new JLabel("   qA="));
-        AXYQ.add(qtextA);
-        AXYQ.add(new JLabel("nC "));
-        
-     // Saisie point B
-        JFormattedTextField xtextB = new JFormattedTextField() ;
-    	xtextB.setBackground(getBackground());
-    	xtextB.setColumns(2);
-    	xtextB.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-    	xtextB.setHorizontalAlignment(JTextField.CENTER);
-        JFormattedTextField  ytextB = new JFormattedTextField() ;
-        ytextB.setBackground(getBackground());
-        ytextB.setColumns(2);
-        ytextB.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-        ytextB.setHorizontalAlignment(JTextField.CENTER);
-        JFormattedTextField qtextB = new JFormattedTextField() ;
-        qtextB.setBackground(getBackground());
-        qtextB.setColumns(2);
-        qtextB.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-        qtextB.setHorizontalAlignment(JTextField.CENTER);
-
-        JPanel BXYQ = new JPanel();
-        BXYQ.setLayout(new BoxLayout(BXYQ, BoxLayout.X_AXIS));
-        
-        BXYQ.add(new JLabel(" B=("));
-        BXYQ.add(xtextB);
-        BXYQ.add(new JLabel(";"));
-        BXYQ.add(ytextB);
-        BXYQ.add(new JLabel(")"));
-        BXYQ.add(new JLabel("   qB="));
-        BXYQ.add(qtextB);
-        BXYQ.add(new JLabel("nC "));
+    	// Saisie A et B
+        EntryABM AXYQ = new EntryABM("A", true, p);
+        EntryABM BXYQ = new EntryABM("B", true, p);
+        panPoint.add(AXYQ.getXYQ()); 
+        panPoint.add(BXYQ.getXYQ());
         
         // Bouton Valider
         JPanel Bouton = new JPanel();
         JButton Valider = new JButton("Valider"); 
         Bouton.add(Valider);
-        
-    	// Ajouts des element
-        panPoint.add(labelWrapper);
-        panPoint.add(AXYQ); 
-        panPoint.add(BXYQ);
-        //panPoint.add(MXY);  
         panPoint.add(Bouton);
     	
         // Action de Valider
         Valider.addActionListener((ActionEvent evt) -> {
-            boolean pass=true;
-            
+            boolean passA=true, passB=true;
             // Vérifier si les valeurs saisies sont conformes
-            try{Double.parseDouble(xtextA.getText());}
-        	catch(NumberFormatException a){
-        		pass=false;
-        		xtextA.setText(""+p.getA().getPoint().getX());
-        		System.out.println("le X de A est non conforme");}
-            
-            try{Double.parseDouble(xtextB.getText());}
-        	catch(NumberFormatException a){
-        		pass=false;
-        		xtextB.setText(""+p.getB().getPoint().getX());
-        		System.out.println("le X de B est non conforme");}
-            
-            try{Double.parseDouble(ytextA.getText());}
-        	catch(NumberFormatException a){
-        		pass=false;
-        		ytextA.setText(""+p.getA().getPoint().getY());
-        		System.out.println("le Y de A est non conforme");}
-           
-            try{Double.parseDouble(ytextB.getText());}
-        	catch(NumberFormatException a){
-        		pass=false;
-        		ytextB.setText(""+p.getB().getPoint().getY());
-        		System.out.println("le Y de B est non conforme");}
-            
-            try{Double.parseDouble(qtextA.getText());}
-        	catch(NumberFormatException a){
-        		pass=false;
-        		qtextA.setText(""+p.getA().getQ());
-        		System.out.println("la charge de A est non conforme");}
-            
-            try{Double.parseDouble(qtextB.getText());}
-        	catch(NumberFormatException a){
-        		pass=false;
-        		qtextB.setText(""+p.getA().getQ());
-        		System.out.println("la charge de B est non conforme");}
+            passA = AXYQ.check("A");
+            passB = BXYQ.check("B");
             
            // Action effectue si les valeurs sont conformes
-           if (pass) {
+           if (passA && passB) {
+        	   System.out.println("passA et passB");
         	   // Conversion des valeurs saisies en double
-        	   double qA= ((double)(int)(Double.parseDouble(qtextA.getText())*100))/100;
-        	   double xA= ((double)(int)(Double.parseDouble(xtextA.getText())*100))/100;
-        	   double yA= ((double)(int)(Double.parseDouble(ytextA.getText())*100))/100;
-        	   double qB= ((double)(int)(Double.parseDouble(qtextB.getText())*100))/100;
-        	   double xB= ((double)(int)(Double.parseDouble(xtextB.getText())*100))/100;
-        	   double yB= ((double)(int)(Double.parseDouble(ytextB.getText())*100))/100;
+        	   double qA= ((double)(int)(AXYQ.getQ()*100))/100;
+        	   double xA= ((double)(int)(AXYQ.getX()*100))/100;
+        	   double yA= ((double)(int)(AXYQ.getY()*100))/100;
+        	   double qB= ((double)(int)(BXYQ.getQ()*100))/100;
+        	   double xB= ((double)(int)(BXYQ.getX()*100))/100;
+        	   double yB= ((double)(int)(BXYQ.getY()*100))/100;
         	   
         	   // Enregistrement des valeurs saisies dans A,B et M
         	   p.getA().setQ(qA);
@@ -392,13 +272,8 @@ public class Control extends JPanel {
     	panPara.setLayout(new BoxLayout(panPara, BoxLayout.Y_AXIS));
     	
     	// Texte "Options d'Affichage"
-    	JPanel labelWrapper = new JPanel();
-    	JLabel label = new JLabel("Options d'Affichage", SwingConstants.CENTER);
-    	label.setBackground(Color.BLACK);
-    	label.setOpaque(true);
-    	label.setForeground(Color.WHITE);
-    	labelWrapper.add(label);
-    	panPara.add(labelWrapper);
+    	EntryABM Para1 = new EntryABM("Options d'Affichage", "", true);
+    	panPara.add(Para1.getTextPanel());
     	
     	// Groupe de JRadioButton (choix des parametres)
     	JPanel Button = new JPanel();
@@ -525,45 +400,29 @@ public class Control extends JPanel {
         panGradient.setLayout(new GridLayout(0,1));
         
         // Texte "Gradient"
-        JPanel labelWrapperGradient = new JPanel();
-    	JLabel labelGradient = new JLabel("Gradient", SwingConstants.CENTER);
-    	labelGradient.setBackground(Color.BLACK);
-    	labelGradient.setOpaque(true);
-    	labelGradient.setForeground(Color.WHITE);
-    	labelWrapperGradient.add(labelGradient);
-    	panGradient.add(labelWrapperGradient);
+    	EntryABM Para2 = new EntryABM("Gradient", "", true);
+    	panGradient.add(Para2.getTextPanel());
     	
     	// Text "Nombre de Couleurs" et de la zone de saisie associé
-    	JPanel panGradient1 = new JPanel();
-        panGradient1.add(new JLabel("Nombre de Couleurs :"));
-    	JFormattedTextField nbrColor = new JFormattedTextField() ;
-    	nbrColor.setBackground(getBackground());
-    	nbrColor.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-    	nbrColor.setHorizontalAlignment(JTextField.CENTER);
-    	nbrColor.setText("25");
-    	nbrColor.setColumns(3);
-    	panGradient1.add(nbrColor);
+    	EntryABM Para3 = new EntryABM("Nombre de Couleurs :", "25", false);
+    	panGradient.add(Para3.getTextPanel());
     	
     	// JButton ValiderNbrColor
     	JButton ValiderNbrColor = new JButton("Valider"); 
     	
     	// Listener de ValiderNbrColor
     	ValiderNbrColor.addActionListener((ActionEvent evt) -> {
-    		boolean passGradient = true;
     		if (Gradientselected) {
+    			boolean passGradient = true;
             	// Vérifier si les valeurs saisies sont conformes
-            	try{Double.parseDouble(nbrColor.getText());}
-            	catch(NumberFormatException a){
-            		passGradient=false;
-            		nbrColor.setText(String.valueOf(nbrColorSet));
-            		System.out.println("le xmax est non conforme");}
+    			passGradient = Para3.check("Text");
             	
             	// Action effectue si les valeurs sont conformes
             	if (passGradient) {
-            		nbrColorSet = (int)Double.parseDouble(nbrColor.getText());
+            		int nbrColorSet = (int)Para3.getTextDouble();
             		if (nbrColorSet<10) {
             			nbrColorSet =10;
-            			nbrColor.setText(String.valueOf(nbrColorSet));
+            			Para3.setText(nbrColorSet);
             		}
             		panelDrawing.setNbrColor(nbrColorSet);
             		panelDrawing.setMode("Grad");
@@ -571,7 +430,6 @@ public class Control extends JPanel {
             	}
     		}
             });
-    	panGradient.add(panGradient1);
     	panGradient.add(ValiderNbrColor);
     	panPara.add(panGradient);
     	
@@ -579,35 +437,16 @@ public class Control extends JPanel {
     	panField.setLayout(new GridLayout(0,1));
         
         // Texte "Champ Electrique"
-        JPanel labelWrapperField = new JPanel();
-    	JLabel labelField = new JLabel("Champ Electrique", SwingConstants.CENTER);
-    	labelField.setBackground(Color.BLACK);
-    	labelField.setOpaque(true);
-    	labelField.setForeground(Color.WHITE);
-    	labelWrapperField.add(labelField);
-    	panField.add(labelWrapperField);
+    	EntryABM Para4 = new EntryABM("Champ Electrique", "", true);
+    	panField.add(Para4.getTextPanel());
     	
     	// Text "Densite vectoriel" et de la zone de saisie associé
-    	JPanel panField1 = new JPanel();
-    	panField1.add(new JLabel("Densite vectoriel :"));
-    	JFormattedTextField densite = new JFormattedTextField() ;
-    	densite.setBackground(getBackground());
-    	densite.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-    	densite.setHorizontalAlignment(JTextField.CENTER);
-    	densite.setText("30");
-    	densite.setColumns(3);
-    	panField1.add(densite);
+    	EntryABM Para5 = new EntryABM("Densite vectoriel :", "30", false);
+    	panField.add(Para5.getTextPanel());
     	
     	// Text "Longueur des vecteurs" et de la zone de saisie associé
-    	JPanel panField2 = new JPanel();
-    	panField2.add(new JLabel("Longueur des vecteurs :"));
-    	JFormattedTextField longueur = new JFormattedTextField() ;
-    	longueur.setBackground(getBackground());
-    	longueur.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-    	longueur.setHorizontalAlignment(JTextField.CENTER);
-    	longueur.setText("2");
-    	longueur.setColumns(3);
-    	panField2.add(longueur);
+    	EntryABM Para6 = new EntryABM("Longueur des vecteurs :", "2", false);
+    	panField.add(Para6.getTextPanel());
     	
     	// JButton ValiderDensiteLongueur
     	JButton ValiderDensiteLongueur = new JButton("Valider"); 
@@ -615,29 +454,27 @@ public class Control extends JPanel {
     	
     	// Listener de ValiderDensite
     	ValiderDensiteLongueur.addActionListener((ActionEvent evt) -> {
-    		boolean passField = true;
+    		boolean passField1=true, passField2=true;
     		if (Fieldselected) {
             	// Vérifier si les valeurs saisies sont conformes
-            	try{
-            		Double.parseDouble(densite.getText());
-            		Double.parseDouble(longueur.getText());
-            	}
-            	catch(NumberFormatException a){
-            		passField=false;
-            		densite.setText("30");
-            		longueur.setText("2");
-            		System.out.println("la densite ou la longueur est non conforme");}
-            	
+    			passField1=Para5.check("Text");
+    			passField2=Para6.check("Text");
+    			
+    			int densite = (int)Math.abs(Para5.getTextDouble());
+    			int longueur = (int)Math.abs(Para6.getTextDouble());
+        		if (densite==0) densite =1;
+        		if (longueur==0) longueur =1;
+        		Para5.setText(densite);
+        		Para6.setText(longueur);
+    			
             	// Action effectue si les valeurs sont conformes
-            	if (passField) {
-            		panelDrawing.setField((int)(Double.parseDouble(longueur.getText())), (int)(Double.parseDouble(densite.getText())));
+            	if (passField1 && passField2) {
+            		panelDrawing.setField(longueur, densite);
             		panelDrawing.setShowField(true);
             		panelDrawing.repaint();
             	}
     		}
             });
-    	panField.add(panField1);
-    	panField.add(panField2);
     	panField.add(ValiderDensiteLongueur);
     	panPara.add(panField);
     	
@@ -646,85 +483,39 @@ public class Control extends JPanel {
     	panEquipote.setLayout(new GridLayout(0,1));
         
         // Texte "Equipotentielle"
-        JPanel labelWrapperEquipote = new JPanel();
-    	JLabel labelEquipote = new JLabel("Equipotentielle", SwingConstants.CENTER);
-    	labelEquipote.setBackground(Color.BLACK);
-    	labelEquipote.setOpaque(true);
-    	labelEquipote.setForeground(Color.WHITE);
-    	labelWrapperEquipote.add(labelEquipote);
-    	panEquipote.add(labelWrapperEquipote);
+    	EntryABM Para7 = new EntryABM("Equipotentielle", "", true);
+    	panEquipote.add(Para7.getTextPanel());
     	
     	// Saisie des points M0
-        JTextField xtextM0 = new JFormattedTextField() ;
-        xtextM0.setBackground(getBackground());
-        xtextM0.setColumns(2);
-        xtextM0.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-        xtextM0.setHorizontalAlignment(JTextField.CENTER);
-        xtextM0.setPreferredSize(new Dimension(35,20));
-        JTextField  ytextM0 = new JFormattedTextField() ;
-        ytextM0.setBackground(getBackground());
-        ytextM0.setColumns(2);
-        ytextM0.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-        ytextM0.setHorizontalAlignment(JTextField.CENTER);
-        ytextM0.setPreferredSize(new Dimension(35,20));
+    	EntryABM Para8 = new EntryABM("", false, p);
 
         JPanel MXY0 = new JPanel(new GridBagLayout());
-        JLabel nbrMtext = new JLabel("M"+nbrMint+"=(");
+        JLabel nbrMtext = new JLabel("M"+nbrMint);
         MXY0.add(nbrMtext);
-        MXY0.add(xtextM0);
-        MXY0.add(new JLabel(";"));
-        MXY0.add(ytextM0);
-        MXY0.add(new JLabel(")"));
+        MXY0.add(Para8.getXY());
+        panEquipote.add(MXY0);
+        
+        // Bouton Valider
+        JPanel Bouton = new JPanel(new GridBagLayout());
+        JButton Valider1 = new JButton("Valider"); 
+        Bouton.add(Valider1);
         
         // Bouton Retour
         JButton Retour = new JButton("Retour"); 
-        MXY0.add(Retour);
+        Bouton.add(Retour);
     	
         // Action d' Entrer
-        xtextM0.addActionListener((ActionEvent evt) -> {
-        	boolean passXM=true;
-            boolean passYM=true;
-            try{Double.parseDouble(xtextM0.getText());}
-        	catch(NumberFormatException a){
-        		passXM=false;
-        		xtextM0.setText("");
-        		System.out.println("le X de M est non conforme");}
-
-            try{Double.parseDouble(ytextM0.getText());}
-        	catch(NumberFormatException a){
-        		passYM=false;
-        		ytextM0.setText("");
-        		System.out.println("le Y de M est non conforme");}
-            if (passXM && passYM) {
-            	MCoord[nbrMint][0]=Double.parseDouble(xtextM0.getText());
-            	MCoord[nbrMint][1]=Double.parseDouble(ytextM0.getText());
+        Valider1.addActionListener((ActionEvent evt) -> {
+        	boolean pass=true;
+        	pass=Para8.check("M0");
+            if (pass) {
+            	MCoord[nbrMint][0]=Para8.getX();
+            	MCoord[nbrMint][1]=Para8.getY();
             	System.out.println(MCoord[nbrMint][0]+" "+MCoord[nbrMint][1]);
             	nbrMint++;
-            	nbrMtext.setText("M"+nbrMint+"=(");
-            	panelDrawing.setEquipote(MCoord, nbrMint);
-            	panelDrawing.repaint();
-            }
-        });
-        ytextM0.addActionListener((ActionEvent evt) -> {
-        	boolean passXM=true;
-            boolean passYM=true;
-            try{Double.parseDouble(xtextM0.getText());}
-        	catch(NumberFormatException a){
-        		passXM=false;
-        		xtextM0.setText("");
-        		System.out.println("le X de M est non conforme");}
-
-            try{Double.parseDouble(ytextM0.getText());}
-        	catch(NumberFormatException a){
-        		passYM=false;
-        		ytextM0.setText("");
-        		System.out.println("le Y de M est non conforme");}
-            if (passXM && passYM) {
-            	MCoord[nbrMint][0]=Double.parseDouble(xtextM0.getText());
-            	MCoord[nbrMint][1]=Double.parseDouble(ytextM0.getText());
-            	System.out.println(MCoord[nbrMint][0]+" "+MCoord[nbrMint][1]);
-            	nbrMint++;
-            	nbrMtext.setText("M"+nbrMint+"=(");
+            	Para8.setX(null);
+        		Para8.setY(null);
+            	nbrMtext.setText("M"+nbrMint);
             	panelDrawing.setEquipote(MCoord, nbrMint);
             	panelDrawing.repaint();
             }
@@ -734,47 +525,29 @@ public class Control extends JPanel {
         Retour.addActionListener((ActionEvent evt) -> {
         	if (nbrMint>0) {
         		nbrMint--;
-        		nbrMtext.setText("M"+nbrMint+"=(");
+        		nbrMtext.setText("M"+nbrMint);
+        		Para8.setX(MCoord[nbrMint][0]);
+        		Para8.setY(MCoord[nbrMint][1]);
         		panelDrawing.setEquipote(MCoord, nbrMint);
         		panelDrawing.repaint();
         	}
             
         });
-        panEquipote.add(MXY0);
+        panEquipote.add(Bouton);
         panPara.add(panEquipote);
     
     // Sous-panneau FieldLines
 	panFieldLines.setLayout(new GridLayout(0,1));
     
     // Texte "Lignes de Champ"
-    JPanel labelWrapperFieldLines = new JPanel();
-	JLabel labelFieldLines = new JLabel("Lignes de Champ", SwingConstants.CENTER);
-	labelFieldLines.setBackground(Color.BLACK);
-	labelFieldLines.setOpaque(true);
-	labelFieldLines.setForeground(Color.WHITE);
-	labelWrapperFieldLines.add(labelFieldLines);
-	panFieldLines.add(labelWrapperFieldLines);
+	EntryABM Para9 = new EntryABM("Lignes de Champ", "", true);
+	panFieldLines.add(Para9.getTextPanel());
 	
 	// Saisie des points M
-    JTextField xtextM = new JFormattedTextField() ;
-    xtextM.setBackground(getBackground());
-    xtextM.setColumns(2);
-    xtextM.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-    xtextM.setHorizontalAlignment(JTextField.CENTER);
-    xtextM.setPreferredSize(new Dimension(35,20));
-    JTextField  ytextM = new JFormattedTextField() ;
-    ytextM.setBackground(getBackground());
-    ytextM.setColumns(2);
-    ytextM.setBorder(BorderFactory.createLineBorder(getBackground(), 2));
-    ytextM.setHorizontalAlignment(JTextField.CENTER);
-    ytextM.setPreferredSize(new Dimension(35,20));
-
-    JPanel MXY = new JPanel(new GridBagLayout());
-    MXY.add(new JLabel("M=("));
-    MXY.add(xtextM);
-    MXY.add(new JLabel(";"));
-    MXY.add(ytextM);
-    MXY.add(new JLabel(")"));
+	JPanel PointM = new JPanel(new GridBagLayout());
+	EntryABM Para10 = new EntryABM("M", false, p);
+	PointM.add(Para10.getXY());
+	panFieldLines.add(PointM);
 	
     // Afficher la direction des lignes de champ
     JRadioButton FieldLinesDirection = new JRadioButton("Direction lignes de champ");
@@ -784,52 +557,25 @@ public class Control extends JPanel {
 			AbstractButton aButton = (AbstractButton)e.getSource();
             ButtonModel aModel = aButton.getModel();
             showFieldLinesDirection = aModel.isSelected();
-            try {panelDrawing.setFieldLines(Double.parseDouble(xtextM.getText()), Double.parseDouble(ytextM.getText()), showFieldLinesDirection);}
-            catch(NumberFormatException a) {}
             panelDrawing.repaint();
 		}
         };
     FieldLinesDirection.addChangeListener(FieldLinesDirectionselectedListener);
+    panFieldLines.add(FieldLinesDirection);
+    
+    // Bouton Valider
+    JButton Valider2 = new JButton("Valider"); 
+    panFieldLines.add(Valider2);
     
     // Action d' Entrer
-    xtextM.addActionListener((ActionEvent evt) -> {
-       	boolean passXM=true;
-        boolean passYM=true;
-        try{Double.parseDouble(xtextM.getText());}
-        catch(NumberFormatException a){
-        	passXM=false;
-        	xtextM.setText("");
-        	System.out.println("le X de M est non conforme");}
-        try{Double.parseDouble(ytextM.getText());}
-        catch(NumberFormatException a){
-        	passYM=false;
-        	ytextM.setText("");
-        	System.out.println("le Y de M est non conforme");}
-        if (passXM && passYM) {
-            panelDrawing.setFieldLines(Double.parseDouble(xtextM.getText()), Double.parseDouble(ytextM.getText()), showFieldLinesDirection);
+    Valider2.addActionListener((ActionEvent evt) -> {
+       	boolean pass=true;
+        pass=Para10.check("M");
+        if (pass) {
+            panelDrawing.setFieldLines(Para10.getX(), Para10.getY(), showFieldLinesDirection);
            	panelDrawing.repaint();
         }
     });
-    ytextM.addActionListener((ActionEvent evt) -> {
-       	boolean passXM=true;
-        boolean passYM=true;
-        try{Double.parseDouble(xtextM.getText());}
-        catch(NumberFormatException a){
-        	passXM=false;
-        	xtextM.setText("");
-        	System.out.println("le X de M est non conforme");}
-        try{Double.parseDouble(ytextM.getText());}
-        catch(NumberFormatException a){
-        	passYM=false;
-        	ytextM.setText("");
-        	System.out.println("le Y de M est non conforme");}
-        if (passXM && passYM) {
-            panelDrawing.setFieldLines(Double.parseDouble(xtextM.getText()), Double.parseDouble(ytextM.getText()), showFieldLinesDirection);
-           	panelDrawing.repaint();
-        }
-    });
-    panFieldLines.add(MXY);
-    panFieldLines.add(FieldLinesDirection);
     panPara.add(panFieldLines);
 }
     
