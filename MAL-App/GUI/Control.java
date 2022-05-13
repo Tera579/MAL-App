@@ -23,6 +23,9 @@ public class Control extends JPanel {
     // Constucteur
     private Potential p;
     
+    // Buttons
+    JButton Valider;
+    
     // PanelDrawing var
     public String mode = mode = "Zero";
     
@@ -151,6 +154,8 @@ public class Control extends JPanel {
             panPara.setVisible(false);
             Para.setEnabled(false);
             Enregistrer.setVisible(false);
+            Valider.setText("Valider A");
+            saisie=0; // reset des points click
             });
         Para.addActionListener((ActionEvent evt) -> {
         	panEch.setVisible(false);
@@ -182,10 +187,10 @@ public class Control extends JPanel {
     	panEch.add(Ech3.getTextPanel());
     	
     	// Bouton Valider
-        JButton Valider = new JButton("Valider"); 
+        JButton ValiderEch = new JButton("Valider"); 
         
         // Listener de Valider
-        Valider.addActionListener((ActionEvent evt) -> {
+        ValiderEch.addActionListener((ActionEvent evt) -> {
         	// Vérifier si les valeurs saisies sont conformes
         	boolean pass1=true, pass2=true;
         	pass1 = Ech2.check("Text");
@@ -213,10 +218,11 @@ public class Control extends JPanel {
         		Point.setEnabled(true);
         		panEch.setVisible(false);
         		Point.doClick();
+        		Valider.setText("Valider A");
         	}
         	
             });
-        panEch.add(Valider);
+        panEch.add(ValiderEch);
     }
     
     // Creation de la page 2 : Choix des points
@@ -235,12 +241,13 @@ public class Control extends JPanel {
         
         // Bouton Valider
         JPanel Bouton = new JPanel();
-        JButton Valider = new JButton("Valider"); 
+        Valider = new JButton("Valider A"); 
         Bouton.add(Valider);
         panPoint.add(Bouton);
     	
         // Action de Valider
         Valider.addActionListener((ActionEvent evt) -> {
+        	if (saisie==0) Valider.setText("Valider B");
         	if (saisie<2) saisie++;
             boolean passA=true, passB=true;
             // Vérifier si les valeurs saisies sont conformes
@@ -248,8 +255,7 @@ public class Control extends JPanel {
             passB = BXYQ.check("B");
             
            // Action effectue si les valeurs sont conformes
-           if (passA && passB) {
-        	   
+           if (passA && passB && saisie==2) {
         	   System.out.println("passA et passB");
         	   // Conversion des valeurs saisies en double
         	   double qA= ((double)(int)(AXYQ.getQ()*100))/100;
@@ -558,7 +564,7 @@ public class Control extends JPanel {
     	Para10 = new EntryABM("", false, p);
 
         JPanel MXYfield = new JPanel(new GridBagLayout());
-        JLabel nbrMtext2 = new JLabel("M"+nbrMintFieldLines);
+        JLabel nbrMtext2 = new JLabel("M"+nbrMintFieldLines+"'");
         MXYfield.add(nbrMtext2);
         MXYfield.add(Para10.getXY());
         panFieldLines.add(MXYfield);

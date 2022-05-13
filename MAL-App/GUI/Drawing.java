@@ -142,8 +142,8 @@ public class Drawing extends JPanel implements MouseListener{
     	    	xpixel = Conversion.doublepixelX(panelControl.MCoordFieldLines[x][0]);
     	    	ypixel = Conversion.doublepixelY(panelControl.MCoordFieldLines[x][1]);
     	    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
-    	    	if (panelControl.ShowCoordselected) text = "M"+x+" ("+panelControl.MCoordFieldLines[x][0]+";"+panelControl.MCoordFieldLines[x][1]+")";
-    	    	else text = "M"+x;
+    	    	if (panelControl.ShowCoordselected) text = "M"+x+"' ("+panelControl.MCoordFieldLines[x][0]+";"+panelControl.MCoordFieldLines[x][1]+")";
+    	    	else text = "M'"+x;
     	    	g2.drawString(text, xpixel+10, ypixel+10);
     	    	for (int i=0; i<10000; i++) {
     	    		ElecPoint = new Point(Conversion.pixeldoubleX(xpixel), Conversion.pixeldoubleY(ypixel), "Field"); 
