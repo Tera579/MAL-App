@@ -23,6 +23,7 @@ public class Drawing extends JPanel implements MouseListener{
 
 	// Constucteur
     private Potential p;
+    private Control panelControl;
     
     // Graphique
     private static int width;
@@ -30,52 +31,22 @@ public class Drawing extends JPanel implements MouseListener{
     private Graphics2D g2;
     private BufferedImage image;
     
-    // Selection du mode
-    private String mode="Zero";
-    
-    // Selection de l'echelle
-    private double xmax;
-    private int grad;
-	private int ech;
-	
-	// Gradient
-	private double[][] pot;
-	private double minus;
-	private double plus;
-	private int nbrColor=25;
-	
-	// Champ electirque
-	private int densite = 30;
-	private int longueur = 2;
-	
 	// Cursor
 	private int x,y;
 	private boolean firstclick=false;
 	
 	// Affichage des Coordonnees
-	private boolean showCoord;
 	private String text;
 	private int xpixel, ypixel;
 	
-	// Equipotentielle
-	private double[][] MCoord;
-	private int nbrMint;
+	// Tracer A et B click
+	boolean traceA, traceB;
 	
-	// FieldLines
-	private double xM;
-	private double yM;
-	private boolean showFieldLinesDirection;
-	private boolean firstFieldLinesSet=false;
-	
-	//private boolean
-	private boolean showEquipote;
-	private boolean showField;
-	private boolean showQ;
-	private boolean showFieldLines;
 	
 	// Constructeur de Drawing
-    public Drawing(Potential p) {
+    public Drawing(Potential p, Control panelControl) {
         this.p = p;
+        this.panelControl = panelControl;
         this.setBackground(Color.WHITE);
         addMouseListener(this);
     }   
@@ -91,13 +62,22 @@ public class Drawing extends JPanel implements MouseListener{
         width = this.getWidth();
         height = this.getHeight();
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
-        
+        if (traceA) {
+        	traceA();
+        	if (traceB) {
+        		traceB();
+        	}
+        } 
+        else {
+        	traceA=false;
+        	traceB=false;
+        }
         update();
         
         // Affichage du potentiel au cursor
         g2.setColor(Color.BLACK);
-        if (mode=="Grad" && firstclick) {
-        	g2.drawString(Double.toString(pot[y][x])+"V", x+5, y+3);
+        if (panelControl.mode=="Grad" && firstclick) {
+        	g2.drawString(Double.toString(panelControl.pot[y][x])+"V", x+5, y+3);
         	g2.drawLine(x-3, y-3, x+3, y+3);
         	g2.drawLine(x+3, y-3, x-3, y+3);
         }
@@ -110,7 +90,7 @@ public class Drawing extends JPanel implements MouseListener{
     	double norm, ei, ej;
     	int x0, y0, x1, y1, x2, y2;
     	double t;
-    	int pas = (int)(width/densite);
+    	int pas = (int)(width/panelControl.densite);
     	for (int y = -1; y < height; y=y+pas) {
     		for (int x = -1; x < width; x=x+pas) {
     			ElecPoint = new Point(Conversion.pixeldoubleX(x), Conversion.pixeldoubleY(y), "Field"); 
@@ -118,8 +98,8 @@ public class Drawing extends JPanel implements MouseListener{
     			ei = elc.geti();
     			ej = elc.getj();
     			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
-    			x0 = x+(int)(ei/norm*ech/5*longueur);
-    			y0 = y-(int)(ej/norm*ech/5*longueur);
+    			x0 = x+(int)(ei/norm*panelControl.longueur);
+    			y0 = y-(int)(ej/norm*panelControl.longueur);
     			t = Math.atan2(y-y0, x-x0)-Math.PI;
     			g2.drawLine(x, y, x0, y0); // ligne de la fleche
     			x1 = x0 - (int)(Math.cos(t+Math.PI/4)*5);
@@ -134,16 +114,15 @@ public class Drawing extends JPanel implements MouseListener{
     
     public void equipote() {
     	try {
-    		for (int i=0; i<nbrMint; i++) {
+    		for (int i=0; i<panelControl.nbrMintEqui; i++) {
     			g2.setColor(Color.BLACK);
-    	    	xpixel = Conversion.doublepixelX(MCoord[i][0]);
-    	    	ypixel = Conversion.doublepixelY(MCoord[i][1]);
+    	    	xpixel = Conversion.doublepixelX(panelControl.MCoordEqui[i][0]);
+    	    	ypixel = Conversion.doublepixelY(panelControl.MCoordEqui[i][1]);
     	    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
-    	    	if (showCoord) text = "M"+i+" ("+MCoord[i][0]+";"+MCoord[i][1]+")";
+    	    	if (panelControl.ShowCoordselected) text = "M"+i+" ("+panelControl.MCoordEqui[i][0]+";"+panelControl.MCoordEqui[i][1]+")";
     	    	else text = "M"+i;
     	    	g2.drawString(text, xpixel+10, ypixel+10);
-    	    	g2.drawString(pot[ypixel][xpixel]+"V", xpixel+10, ypixel+25);
-    	    	
+    	    	g2.drawString(panelControl.pot[ypixel][xpixel]+"V", xpixel+10, ypixel+25);
     	};
     	}
     	catch(NullPointerException a){
@@ -157,55 +136,63 @@ public class Drawing extends JPanel implements MouseListener{
     	double norm, ei, ej;
     	int x0, y0;
     	g2.setColor(Color.BLACK);
-    	xpixel = Conversion.doublepixelX(xM);
-    	ypixel = Conversion.doublepixelY(yM);
-    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
-    	if (showCoord) text = "M ("+xM+";"+yM+")";
-    	else text = "M";
-    	g2.drawString(text, xpixel+10, ypixel+10);
-    	for (int i=0; i<1000; i++) {
-    		ElecPoint = new Point(Conversion.pixeldoubleX(xpixel), Conversion.pixeldoubleY(ypixel), "Field"); 
-			elc.calculElectric(p.getA(), p.getB(), ElecPoint);
-			ei = elc.geti();
-			ej = elc.getj();
-			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
-			x0 = xpixel+(int)(ei/norm*10);
-			y0 = ypixel-(int)(ej/norm*10);
-			g2.drawLine(xpixel, ypixel, x0, y0);
-			if (i%5==0 && showFieldLinesDirection) {
-				double t = Math.atan2(ypixel-y0, xpixel-x0)-Math.PI;
-    			int x1 = x0 - (int)(Math.cos(t+Math.PI/4)*5);
-    			int y1 = y0 - (int)(Math.sin(t+Math.PI/4)*5);
-    			g2.drawLine(x0, y0, x1, y1);
-    			int x2 = x0 - (int)(Math.cos(t-Math.PI/4)*5);
-    			int y2 = y0 - (int)(Math.sin(t-Math.PI/4)*5);
-    			g2.drawLine(x0, y0, x2, y2);
-			}
-			xpixel = x0;
-			ypixel = y0;
-		}
-    	xpixel = Conversion.doublepixelX(xM);
-    	ypixel = Conversion.doublepixelY(yM);
-    	for (int j=0; j<1000; j++) {
-    		ElecPoint = new Point(Conversion.pixeldoubleX(xpixel), Conversion.pixeldoubleY(ypixel), "Field"); 
-			elc.calculElectric(p.getA(), p.getB(), ElecPoint);
-			ei = -elc.geti();
-			ej = -elc.getj();
-			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
-			x0 = xpixel+(int)(ei/norm*10);
-			y0 = ypixel-(int)(ej/norm*10);
-			g2.drawLine(xpixel, ypixel, x0, y0);
-			if (j%5==0 && showFieldLinesDirection) {
-				double t = Math.atan2(ypixel-y0, xpixel-x0)-Math.PI;
-    			int x1 = x0 + (int)(Math.cos(t+Math.PI/4)*5);
-    			int y1 = y0 + (int)(Math.sin(t+Math.PI/4)*5);
-    			g2.drawLine(x0, y0, x1, y1);
-    			int x2 = x0 + (int)(Math.cos(t-Math.PI/4)*5);
-    			int y2 = y0 + (int)(Math.sin(t-Math.PI/4)*5);
-    			g2.drawLine(x0, y0, x2, y2);
-			}
-			xpixel = x0;
-			ypixel = y0;
+    	try {
+    		for (int x=0; x<panelControl.nbrMintFieldLines; x++) {
+    			g2.setColor(Color.BLACK);
+    	    	xpixel = Conversion.doublepixelX(panelControl.MCoordFieldLines[x][0]);
+    	    	ypixel = Conversion.doublepixelY(panelControl.MCoordFieldLines[x][1]);
+    	    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
+    	    	if (panelControl.ShowCoordselected) text = "M"+x+" ("+panelControl.MCoordFieldLines[x][0]+";"+panelControl.MCoordFieldLines[x][1]+")";
+    	    	else text = "M"+x;
+    	    	g2.drawString(text, xpixel+10, ypixel+10);
+    	    	for (int i=0; i<10000; i++) {
+    	    		ElecPoint = new Point(Conversion.pixeldoubleX(xpixel), Conversion.pixeldoubleY(ypixel), "Field"); 
+    				elc.calculElectric(p.getA(), p.getB(), ElecPoint);
+    				ei = elc.geti();
+    				ej = elc.getj();
+    				norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
+    				x0 = xpixel+(int)(ei/norm*10);
+    				y0 = ypixel-(int)(ej/norm*10);
+    				g2.drawLine(xpixel, ypixel, x0, y0);
+    				if (i%5==0 && panelControl.showFieldLinesDirection) {
+    					double t = Math.atan2(ypixel-y0, xpixel-x0)-Math.PI;
+    	    			int x1 = x0 - (int)(Math.cos(t+Math.PI/4)*5);
+    	    			int y1 = y0 - (int)(Math.sin(t+Math.PI/4)*5);
+    	    			g2.drawLine(x0, y0, x1, y1);
+    	    			int x2 = x0 - (int)(Math.cos(t-Math.PI/4)*5);
+    	    			int y2 = y0 - (int)(Math.sin(t-Math.PI/4)*5);
+    	    			g2.drawLine(x0, y0, x2, y2);
+    				}
+    				xpixel = x0;
+    				ypixel = y0;
+    			}
+    	    	xpixel = Conversion.doublepixelX(panelControl.MCoordFieldLines[x][0]);
+    	    	ypixel = Conversion.doublepixelY(panelControl.MCoordFieldLines[x][1]);
+    	    	for (int j=0; j<10000; j++) {
+    	    		ElecPoint = new Point(Conversion.pixeldoubleX(xpixel), Conversion.pixeldoubleY(ypixel), "Field"); 
+    				elc.calculElectric(p.getA(), p.getB(), ElecPoint);
+    				ei = -elc.geti();
+    				ej = -elc.getj();
+    				norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
+    				x0 = xpixel+(int)(ei/norm*10);
+    				y0 = ypixel-(int)(ej/norm*10);
+    				g2.drawLine(xpixel, ypixel, x0, y0);
+    				if (j%5==0 && panelControl.showFieldLinesDirection) {
+    					double t = Math.atan2(ypixel-y0, xpixel-x0)-Math.PI;
+    	    			int x1 = x0 + (int)(Math.cos(t+Math.PI/4)*5);
+    	    			int y1 = y0 + (int)(Math.sin(t+Math.PI/4)*5);
+    	    			g2.drawLine(x0, y0, x1, y1);
+    	    			int x2 = x0 + (int)(Math.cos(t-Math.PI/4)*5);
+    	    			int y2 = y0 + (int)(Math.sin(t-Math.PI/4)*5);
+    	    			g2.drawLine(x0, y0, x2, y2);
+    				}
+    				xpixel = x0;
+    				ypixel = y0;
+    	    	}
+    	};
+    	}
+    	catch(NullPointerException a){
+    		
     	}
     }
     // Trace les points
@@ -214,20 +201,20 @@ public class Drawing extends JPanel implements MouseListener{
     	xpixel = Conversion.doublepixelX(p.getA().getPoint().getX());
     	ypixel = Conversion.doublepixelY(p.getA().getPoint().getY());
     	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
-    	if (showCoord) text = "A ("+p.getA().getPoint().getX()+";"+p.getA().getPoint().getY()+")";
+    	if (panelControl.ShowCoordselected) text = "A ("+p.getA().getPoint().getX()+";"+p.getA().getPoint().getY()+")";
     	else text = "A";
     	g2.drawString(text, xpixel+10, ypixel+10);
-    	if (showQ) g2.drawString(Double.toString(p.getA().getQ())+"nC", xpixel+10, ypixel+25);
+    	if (panelControl.ShowQselected) g2.drawString(Double.toString(p.getA().getQ())+"nC", xpixel+10, ypixel+25);
     }
 	public void traceB() {
 		g2.setColor(Color.BLACK);
 		xpixel = Conversion.doublepixelX(p.getB().getPoint().getX());
     	ypixel = Conversion.doublepixelY(p.getB().getPoint().getY());
     	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
-    	if (showCoord) text = "B ("+p.getB().getPoint().getX()+";"+p.getB().getPoint().getY()+")";
+    	if (panelControl.ShowCoordselected) text = "B ("+p.getB().getPoint().getX()+";"+p.getB().getPoint().getY()+")";
     	else text = "B";
     	g2.drawString(text, xpixel+10, ypixel+10);
-    	if (showQ) g2.drawString(Double.toString(p.getB().getQ())+"nC", xpixel+10, ypixel+25);
+    	if (panelControl.ShowQselected) g2.drawString(Double.toString(p.getB().getQ())+"nC", xpixel+10, ypixel+25);
 	}      
 	
     // Color le graphique en fonction du potentiel
@@ -236,7 +223,7 @@ public class Drawing extends JPanel implements MouseListener{
     	Color c=null;
     	for (i = 0; i < height; i++) {
     		for (j = 0; j < width; j++) {
-    			c = ColorGradient.getColorGradient(pot[i][j], plus, minus, nbrColor);
+    			c = ColorGradient.getColorGradient(panelControl.pot[i][j], panelControl.plus, panelControl.minus, panelControl.nbrColor);
     			image.setRGB(j, i, c.getRGB());
     		}
         }
@@ -244,21 +231,21 @@ public class Drawing extends JPanel implements MouseListener{
     }
     
     public void gradientScale() {
-    	for (int x=1; x<=nbrColor; x++) {
-    		double h = ((double)x)*0.65/((double)nbrColor);
+    	for (int x=1; x<=panelControl.nbrColor; x++) {
+    		double h = ((double)x)*0.65/((double)panelControl.nbrColor);
     		g2.setColor(Color.getHSBColor((float) h, 1, 1));
-    		g2.fillRect(width-230-(int)(200/(double)nbrColor)+(int)((double)(x*200)/(double)nbrColor), height-40, (int)(200/(double)nbrColor)+1, 25);
+    		g2.fillRect(width-230-(int)(200/(double)panelControl.nbrColor)+(int)((double)(x*200)/(double)panelControl.nbrColor), height-40, (int)(200/(double)panelControl.nbrColor)+1, 25);
     	}
     	g2.setColor(Color.BLACK);
     	g2.drawRect(width-230, height-40, 200, 25);
     	FontMetrics metrics = g2.getFontMetrics();
     	g2.setColor(Color.BLACK);
-    	if (minus<9999) minus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(minus))));
-    	if (plus>9999) plus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(plus))));
-    	g2.drawString(Double.toString(minus), width-230-metrics.stringWidth(Double.toString((int)minus))/2, height-2);
+    	if (panelControl.minus<9999) panelControl.minus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(panelControl.minus))));
+    	if (panelControl.plus>9999) panelControl.plus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(panelControl.plus))));
+    	g2.drawString(Double.toString(panelControl.minus), width-230-metrics.stringWidth(Double.toString((int)panelControl.minus))/2, height-2);
     	g2.drawString("0", width-130-metrics.stringWidth("0")/2, height-2);
     	g2.drawLine(width-130, height-40, width-130, height-15);
-    	g2.drawString(Double.toString(plus), width-30-metrics.stringWidth(Double.toString((int)plus))/2, height-2);
+    	g2.drawString(Double.toString(panelControl.plus), width-30-metrics.stringWidth(Double.toString((int)panelControl.plus))/2, height-2);
     }
     // Trace les Axes et les graduations
     public void traceAxes() {
@@ -275,8 +262,8 @@ public class Drawing extends JPanel implements MouseListener{
         g2.drawLine(width/2, 5, width/2 + 4, 5 + 8);
 
         // Trace les graduations horizontales
-        for (double x = 0; x <= xmax; x=x+grad) {
-    			int xe = (int) (x * ech + width/2);
+        for (double x = 0; x <= panelControl.xmax; x=x+panelControl.grad) {
+    			int xe = (int) (x * panelControl.ech + width/2);
     			g2.drawLine(width - xe, height/2, width - xe, height/2 + 4);
     			g2.drawLine(xe, height/2, xe, height/2 + 4);
     			
@@ -294,10 +281,10 @@ public class Drawing extends JPanel implements MouseListener{
         }
 
         // Trace les graduations verticales
-        for (double y = 0; y <= xmax; y=y+grad) {
+        for (double y = 0; y <= panelControl.xmax; y=y+panelControl.grad) {
         	// Ne dessine pas 0 (dessine precedement)
         	if (y!=0) {
-        		int ye = (int) (y * ech + height/2);
+        		int ye = (int) (y * panelControl.ech + height/2);
         		g2.drawLine(width/2, height - ye, width/2 - 4, height - ye);
         		g2.drawLine(width/2, ye, width/2 - 4, ye);
         		
@@ -314,7 +301,7 @@ public class Drawing extends JPanel implements MouseListener{
     
     // Selection du mode (definit par Control)
     public void update() {
-        switch (mode){
+        switch (panelControl.mode){
         	case "Zero":
         		break;
         	case "Axes":
@@ -336,10 +323,10 @@ public class Drawing extends JPanel implements MouseListener{
         		break;
         	default:
         }
-        if (showField) electricField();
-        if (showEquipote) equipote();
-        if (showFieldLines && firstFieldLinesSet) fieldLines();
-        if (mode=="Grad") gradientScale(); // repaint l'echelle de gradient sur le field
+        if (panelControl.Fieldselected) electricField();
+        if (panelControl.Equipoteselected) equipote();
+        if (panelControl.FieldLinesselected) fieldLines();
+        if (panelControl.mode=="Grad") gradientScale(); // repaint l'echelle de gradient sur le field
     }
     
     // Enregistre l'image 
@@ -365,76 +352,41 @@ public class Drawing extends JPanel implements MouseListener{
         return height;
     }
     
-    // Initialisation des variables par Control
-    public void setEch(int ech, int xmax, int grad) {
-    	this.ech = ech;
-    	this.xmax = xmax;
-    	this.grad = grad;
-    }
-    public void setMode(String mode) {
-    	this.mode = mode;
-    }
-    public void setNbrColor(int nbrColor) {
-    	int nbrColorMax = nbrColor;
-    	if (nbrColor<10) nbrColorMax = 10;
-    	if (this.nbrColor != Math.abs(nbrColorMax)) {
-    		this.nbrColor = Math.abs(nbrColorMax);
-    	}
-    	
-    }
-    public void setPot(double[][] pot, double plus, double minus) {
-    	this.pot = pot;
-    	this.plus = plus;
-    	this.minus = minus;
-    }
-    
-    public void setShowCoord(boolean showCoord) {
-    	this.showCoord = showCoord;
-    }
-    
-    public void setShowQ(boolean showQ) {
-    	this.showQ = showQ;
-    	System.out.println(showQ);
-    }
-    
-    public void setShowField(boolean showField) {
-    	this.showField = showField;
-    }
-    
-    public void setShowEquipote(boolean showEquipote) {
-    	this.showEquipote = showEquipote;
-    }
-    
-    public void setShowFieldLines(boolean showFieldLines) {
-    	this.showFieldLines = showFieldLines;
-    }
-    
-    public void setEquipote(double[][] MCoord, int nbrMint) {
-    	this.MCoord = MCoord;
-    	this.nbrMint = nbrMint;
-    }
-    
-    public void setFieldLines(double xM, double yM, boolean showFieldLinesDirection) {
-    	this.xM = xM;
-    	this.yM = yM;
-    	this.showFieldLinesDirection = showFieldLinesDirection;
-    	firstFieldLinesSet = true;
-    }
-    
-    public void setField(int longueur, int densite) {
-    	this.longueur = longueur;
-    	this.densite = densite;
-    }
 	
     // Methodes de MouseListener
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (mode=="Grad") {
+		if (panelControl.mode=="Grad") {
 			x = e.getX();
 			y = e.getY();
-			this.repaint();
 			firstclick = true;
 		}
+		if (panelControl.Equipoteselected) {
+			panelControl.Para8.setX(((double)((int)((Conversion.pixeldoubleX(e.getX()))*10)))/10);
+			panelControl.Para8.setY(((double)((int)((Conversion.pixeldoubleY(e.getY()))*10)))/10);
+		}
+		if (panelControl.FieldLinesselected) {
+		panelControl.Para10.setX(((double)((int)((Conversion.pixeldoubleX(e.getX()))*10)))/10);
+		panelControl.Para10.setY(((double)((int)((Conversion.pixeldoubleY(e.getY()))*10)))/10);
+		}
+		switch (panelControl.saisie) {
+		case 0: 
+			panelControl.AXYQ.setX(((double)((int)((Conversion.pixeldoubleX(e.getX()))*10)))/10);
+			panelControl.AXYQ.setY(((double)((int)((Conversion.pixeldoubleY(e.getY()))*10)))/10);
+			p.getA().getPoint().setX(((double)((int)((Conversion.pixeldoubleX(e.getX()))*10)))/10);
+			p.getA().getPoint().setY(((double)((int)((Conversion.pixeldoubleY(e.getY()))*10)))/10);
+			traceA = true;
+			break;
+		case 1:
+			panelControl.BXYQ.setX(((double)((int)((Conversion.pixeldoubleX(e.getX()))*10)))/10);
+			panelControl.BXYQ.setY(((double)((int)((Conversion.pixeldoubleY(e.getY()))*10)))/10);
+			p.getB().getPoint().setX(((double)((int)((Conversion.pixeldoubleX(e.getX()))*10)))/10);
+			p.getB().getPoint().setY(((double)((int)((Conversion.pixeldoubleY(e.getY()))*10)))/10);
+			traceB = true;
+			break;
+		default:
+		}
+		this.repaint();
 	}
 
 	@Override

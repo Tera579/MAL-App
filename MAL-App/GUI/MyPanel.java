@@ -20,7 +20,7 @@ public class MyPanel extends JPanel {
 	        Status panelStatus = new Status();
 	        Control panelControl = new Control(p);
 	        Help panelHelp = new Help();
-	        Drawing panelDrawing = new Drawing(p);
+	        Drawing panelDrawing = new Drawing(p, panelControl);
 	        
 	        
 	        this.add(panelStatus, BorderLayout.SOUTH);

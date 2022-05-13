@@ -24,12 +24,12 @@ public class EntryABM {
 		if (q) {
 			xtext = new JFormattedTextField() ;
 	    	xtext.setBackground(c);
-	    	xtext.setColumns(2);
+	    	xtext.setColumns(3);
 	    	xtext.setBorder(BorderFactory.createLineBorder(c, 2));
 	    	xtext.setHorizontalAlignment(JTextField.CENTER);
 	        ytext = new JFormattedTextField() ;
 	        ytext.setBackground(c);
-	        ytext.setColumns(2);
+	        ytext.setColumns(3);
 	        ytext.setBorder(BorderFactory.createLineBorder(c, 2));
 	        ytext.setHorizontalAlignment(JTextField.CENTER);
 	        qtext = new JFormattedTextField() ;
@@ -53,12 +53,12 @@ public class EntryABM {
 		else {
 			xtext = new JFormattedTextField() ;
 	    	xtext.setBackground(c);
-	    	xtext.setColumns(2);
+	    	xtext.setColumns(3);
 	    	xtext.setBorder(BorderFactory.createLineBorder(c, 2));
 	    	xtext.setHorizontalAlignment(JTextField.CENTER);
 	        ytext = new JFormattedTextField() ;
 	        ytext.setBackground(c);
-	        ytext.setColumns(2);
+	        ytext.setColumns(3);
 	        ytext.setBorder(BorderFactory.createLineBorder(c, 2));
 	        ytext.setHorizontalAlignment(JTextField.CENTER);
 	        
@@ -203,7 +203,7 @@ public class EntryABM {
 		if (q==null) qtext.setText("");
 		else qtext.setText(Double.toString(q));
 	}
-	public void setText(int TextDouble) {
-		textField.setText(Integer.toString(TextDouble));
+	public void setText(String Text) {
+		textField.setText(Text);
 	}
 }

@@ -5,7 +5,7 @@ import GUI.Drawing;
 public class Conversion {
 	private static int Width = Drawing.getWidthDrawing();
 	private static int Height = Drawing.getHeightDrawing();
-	private static int ech;
+	private static double ech;
 	
 	public static int doublepixelX(double valdouble) {
     	int valint=(int)((valdouble*ech + (double)Width/2)) ;
@@ -23,7 +23,7 @@ public class Conversion {
     	double valdouble=-(((double)valint - (double)Height/2)/ech) ;
 		return valdouble;
     }
-    public static void setEch(int echdraw) {
+    public static void setEch(double echdraw) {
     	ech = echdraw;
     }
 }
