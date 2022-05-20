@@ -603,7 +603,7 @@ public class Control extends JPanel {
             	nbrMintFieldLines++;
             	Para10.setX(null);
         		Para10.setY(null);
-            	nbrMtext2.setText("M"+nbrMintFieldLines);
+            	nbrMtext2.setText("M"+nbrMintFieldLines+"'");
             	panelDrawing.repaint();
             }
         });

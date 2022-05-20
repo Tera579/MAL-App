@@ -42,7 +42,6 @@ public class Drawing extends JPanel implements MouseListener{
 	// Tracer A et B click
 	boolean traceA, traceB;
 	
-	
 	// Constructeur de Drawing
     public Drawing(Potential p, Control panelControl) {
         this.p = p;
@@ -118,12 +117,61 @@ public class Drawing extends JPanel implements MouseListener{
     			g2.setColor(Color.BLACK);
     	    	xpixel = Conversion.doublepixelX(panelControl.MCoordEqui[i][0]);
     	    	ypixel = Conversion.doublepixelY(panelControl.MCoordEqui[i][1]);
+    	    	double val = panelControl.pot[ypixel][xpixel];
     	    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
     	    	if (panelControl.ShowCoordselected) text = "M"+i+" ("+panelControl.MCoordEqui[i][0]+";"+panelControl.MCoordEqui[i][1]+")";
     	    	else text = "M"+i;
     	    	g2.drawString(text, xpixel+10, ypixel+10);
     	    	g2.drawString(panelControl.pot[ypixel][xpixel]+"V", xpixel+10, ypixel+25);
-    	};
+    	    	
+    	    	
+    	    	
+    	    	
+    	    	Electric elc = new Electric();
+    	    	Point ElecPoint;
+    	    	double norm, ei, ej;
+    	    	int x, y, x0, y0;
+    	    	x = xpixel;
+    	    	y = ypixel;
+    	    	for (int j = 0; j < 10000; j++) {
+    	    		System.out.println("e");
+        			ElecPoint = new Point(Conversion.pixeldoubleX(x), Conversion.pixeldoubleY(y), "Field"); 
+        			elc.calculElectric(p.getA(), p.getB(), ElecPoint);
+        			ei = elc.geti();
+        			ej = elc.getj();
+        			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
+        			x0 = x-(int)(ej/norm*10);
+        			y0 = y-(int)(ei/norm*10);
+        			g2.drawLine(x, y, x0, y0);
+        			x = x0;
+        			y = y0;
+        		}
+    	    	
+    	    	/*
+    	    	for(int y=0;y<height;y++) {
+    	    		for(int x=0;x<width;x++) {
+    	    			boolean breaked=false;
+        	    		if(panelControl.pot[y][x]==val) {
+        	    			int nbpt=1;
+        	    			switch(nbpt) {
+        	    			case 1 :
+        	    				if( panelControl.pot[y][x+1] != val) {
+        	    					g2.drawOval(x, y, 2, 2);
+        	    					nbpt=2;
+        	    				}
+        	    				break;
+        	    			case 2:
+        	    				if( panelControl.pot[y][x-1] != val && panelControl.pot[x][y] == val) {
+        	    					g2.drawOval(x, y, 2, 2);
+        	    					breaked = true;
+        	    				}
+        	    				break;
+        	    			default:
+        	    			}
+        	    		}
+        	    	}
+    	    	}*/
+    	}
     	}
     	catch(NullPointerException a){
     		
@@ -143,7 +191,7 @@ public class Drawing extends JPanel implements MouseListener{
     	    	ypixel = Conversion.doublepixelY(panelControl.MCoordFieldLines[x][1]);
     	    	g2.drawOval(xpixel-3, ypixel-3, 6, 6);
     	    	if (panelControl.ShowCoordselected) text = "M"+x+"' ("+panelControl.MCoordFieldLines[x][0]+";"+panelControl.MCoordFieldLines[x][1]+")";
-    	    	else text = "M'"+x;
+    	    	else text = "M"+x+"'";
     	    	g2.drawString(text, xpixel+10, ypixel+10);
     	    	for (int i=0; i<10000; i++) {
     	    		ElecPoint = new Point(Conversion.pixeldoubleX(xpixel), Conversion.pixeldoubleY(ypixel), "Field"); 
@@ -240,12 +288,45 @@ public class Drawing extends JPanel implements MouseListener{
     	g2.drawRect(width-230, height-40, 200, 25);
     	FontMetrics metrics = g2.getFontMetrics();
     	g2.setColor(Color.BLACK);
-    	if (panelControl.minus<9999) panelControl.minus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(panelControl.minus))));
-    	if (panelControl.plus>9999) panelControl.plus = Double.parseDouble(String.format("%6.3e",Double.parseDouble(Double.toString(panelControl.plus))));
-    	g2.drawString(Double.toString(panelControl.minus), width-230-metrics.stringWidth(Double.toString((int)panelControl.minus))/2, height-2);
-    	g2.drawString("0", width-130-metrics.stringWidth("0")/2, height-2);
-    	g2.drawLine(width-130, height-40, width-130, height-15);
-    	g2.drawString(Double.toString(panelControl.plus), width-30-metrics.stringWidth(Double.toString((int)panelControl.plus))/2, height-2);
+    	double minusPower = panelControl.minus;
+    	double plusPower = panelControl.plus;  
+        String minusPowerString=String.valueOf(panelControl.minus);
+        String plusPowerString=String.valueOf(panelControl.plus);
+        int count = 0;
+        if (panelControl.minus < -10000){
+            while (minusPower < -1) {
+                minusPower = minusPower /10;
+                count = count + 1;
+                minusPowerString = "-10^"+String.valueOf(count);
+            }
+        }
+        if (panelControl.minus > 10000){
+            while (minusPower > 1) {
+                minusPower = minusPower /10;
+                count = count + 1;
+                minusPowerString = "10^"+String.valueOf(count);
+            }
+        }
+        count = 0;
+        if (panelControl.plus < -10000){
+            while (plusPower < -1) {
+                plusPower = plusPower /10;
+                count = count + 1;
+                plusPowerString = "-10^"+String.valueOf(count);
+            }
+        }
+        if (panelControl.plus > 10000){
+            while (plusPower > 1) {
+                plusPower = plusPower /10;
+                count = count + 1;
+                plusPowerString = "10^"+String.valueOf(count);
+            }
+        }
+         
+    g2.drawString(minusPowerString, width-230-metrics.stringWidth(minusPowerString)/2, height-2);
+    g2.drawString("0", width-130-metrics.stringWidth("0")/2, height-2);
+    g2.drawLine(width-130, height-40, width-130, height-15);
+    g2.drawString(plusPowerString, width-30-metrics.stringWidth(plusPowerString)/2, height-2);
     }
     // Trace les Axes et les graduations
     public void traceAxes() {
