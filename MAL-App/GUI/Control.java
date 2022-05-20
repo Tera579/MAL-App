@@ -17,7 +17,6 @@ public class Control extends JPanel {
     
 	// Instance des differents panneaux
     private static Drawing panelDrawing;
-    private static Status panelStatus;
     private static Help panelHelp;
     
     // Constucteur
@@ -27,7 +26,7 @@ public class Control extends JPanel {
     JButton Valider;
     
     // PanelDrawing var
-    public String mode = mode = "Zero";
+    public String mode = "Zero";
     
     // Stockage du potentiel en chaques points
     public int nbrColor = 25;
@@ -626,9 +625,6 @@ public class Control extends JPanel {
     // Instancie les differents panneaux (par MyPanel)
     public void setpanelDrawing(Drawing panelDrawing) {
         Control.panelDrawing = panelDrawing;
-    }
-    public void setpanelStatus(Status panelStatus) {
-        Control.panelStatus = panelStatus;
     }
     public void setpanelHelp(Help panelHelp) {
         Control.panelHelp = panelHelp;

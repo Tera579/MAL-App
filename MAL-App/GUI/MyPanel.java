@@ -17,19 +17,16 @@ public class MyPanel extends JPanel {
 	        Particule B = new Particule("B");
 	        Potential p = new Potential("Potentiel", A, B);
 	        
-	        Status panelStatus = new Status();
 	        Control panelControl = new Control(p);
 	        Help panelHelp = new Help();
 	        Drawing panelDrawing = new Drawing(p, panelControl);
 	        
 	        
-	        this.add(panelStatus, BorderLayout.SOUTH);
 	        this.add(panelDrawing, BorderLayout.CENTER);
 	        this.add(panelHelp, BorderLayout.NORTH);
 	        this.add(panelControl, BorderLayout.WEST);  
 	        
 	        panelControl.setpanelDrawing(panelDrawing);
-	        panelControl.setpanelStatus(panelStatus);
 	        panelControl.setpanelHelp(panelHelp);
 	    } 
 }
