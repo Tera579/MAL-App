@@ -125,29 +125,6 @@ public class Drawing extends JPanel implements MouseListener{
     	    	g2.drawString(panelControl.pot[ypixel][xpixel]+"V", xpixel+10, ypixel+25);
     	    	
     	    	
-    	    	
-    	    	
-    	    	Electric elc = new Electric();
-    	    	Point ElecPoint;
-    	    	double norm, ei, ej;
-    	    	int x, y, x0, y0;
-    	    	x = xpixel;
-    	    	y = ypixel;
-    	    	for (int j = 0; j < 10000; j++) {
-    	    		System.out.println("e");
-        			ElecPoint = new Point(Conversion.pixeldoubleX(x), Conversion.pixeldoubleY(y), "Field"); 
-        			elc.calculElectric(p.getA(), p.getB(), ElecPoint);
-        			ei = elc.geti();
-        			ej = elc.getj();
-        			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
-        			x0 = x-(int)(ej/norm*10);
-        			y0 = y-(int)(ei/norm*10);
-        			g2.drawLine(x, y, x0, y0);
-        			x = x0;
-        			y = y0;
-        		}
-    	    	
-    	    	/*
     	    	for(int y=0;y<height;y++) {
     	    		for(int x=0;x<width;x++) {
     	    			boolean breaked=false;
@@ -170,7 +147,7 @@ public class Drawing extends JPanel implements MouseListener{
         	    			}
         	    		}
         	    	}
-    	    	}*/
+    	    	}
     	}
     	}
     	catch(NullPointerException a){
@@ -391,14 +368,12 @@ public class Drawing extends JPanel implements MouseListener{
         	case "Clas":
         		traceA();
                 traceB();
-        	    //if (showM) traceM();
                 traceAxes();
         		break;
         	case "Grad":
         		gradientColor();
         		traceA();
                 traceB();
-        	    //if (showM) traceM();
                 traceAxes();
                 gradientScale();
         		break;
@@ -467,6 +442,10 @@ public class Drawing extends JPanel implements MouseListener{
 			break;
 		default:
 		}
+		PotentialField Field = new PotentialField(p);
+		panelControl.pot = Field.getPotentialField();
+		panelControl.plus = Field.getPotentialFieldPlus();
+		panelControl.minus = Field.getPotentialFieldMinus();
 		this.repaint();
 	}
 

@@ -244,7 +244,6 @@ public class Control extends JPanel {
         Valider = new JButton("Valider A"); 
         Bouton.add(Valider);
         panPoint.add(Bouton);
-    	
         // Action de Valider
         Valider.addActionListener((ActionEvent evt) -> {
         	if (saisie==0) Valider.setText("Valider B");
