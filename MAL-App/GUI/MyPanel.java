@@ -2,6 +2,7 @@ package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -22,9 +23,12 @@ public class MyPanel extends JPanel {
 	        Potential p = new Potential("Potentiel", A, B);
 	        
 	        Control panelControl = new Control(p);
+	        panelControl.setPreferredSize(new Dimension(250, 800));
 	        Help panelHelp = new Help();
+	        panelHelp.setPreferredSize(new Dimension(1000, 30));
 	        panelHelp.setText("Choisissez la taille du graphe");
 	        Drawing panelDrawing = new Drawing(p, panelControl);
+	        panelDrawing.setPreferredSize(new Dimension(750, 800));
 	        
 	        /*JPanel credit = new JPanel();
 	        JLabel creditLabel = new JLabel("Projet informatique de: Amélie BOVE, Louis QUINOT et Marie TABARDIN");   

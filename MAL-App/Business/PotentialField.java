@@ -38,11 +38,9 @@ public double[][] getPotentialField() {
     return pot;
 }
 public double getPotentialFieldPlus() {
-	System.out.println("P plus="+plus);
     return plus;
 }
 public double getPotentialFieldMinus() {
-	System.out.println("P moins="+minus);
     return minus;
 }
 

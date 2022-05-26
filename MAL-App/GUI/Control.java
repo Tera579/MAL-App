@@ -52,15 +52,15 @@ public class Control extends JPanel {
     JRadioButton Para;
     
     // Variables d'etat utilises par PanPara
-    public boolean Gradientselected=false;
-    public boolean Fieldselected=false;
-    public boolean Equipoteselected=false;
-    public boolean FieldLinesselected=false;
-    public boolean ShowCoordselected=false;
-    public boolean ShowMselected=false;
-    public boolean ShowQselected=false;
-    public boolean showFieldLinesDirection=false;
-    public boolean GradientCursorselected=false;
+    public boolean gradientSelected=false;
+    public boolean champSelected=false;
+    public boolean equipoteSelected=false;
+    public boolean champLigneSelected=false;
+    public boolean affCoordSelected=false;
+    public boolean affMSelected=false;
+    public boolean affQSelected=false;
+    public boolean affChampLigneDirection=false;
+    public boolean gradientCurseurSelected=false;
     
     // Variable saisie des points
     public EntryABM AXYQ, BXYQ, Para8, Para10;
@@ -177,7 +177,6 @@ public class Control extends JPanel {
            JPanel Zoom = new JPanel();
            JButton ZoomOut = new JButton("-"); 
            JButton ZoomIn = new JButton("+"); 
-           ZoomIn.setEnabled(false);
            Zoom.add(ZoomIn);
            Zoom.add(ZoomOut);
            
@@ -187,21 +186,22 @@ public class Control extends JPanel {
            
         // Listener de Zoom
            ZoomIn.addActionListener((ActionEvent evt) -> {
-           	zoomAction = true;
-           	Ech2.setText(String.valueOf(grad/2));
-           	if (xmax>15) {
-           		xmax=xmax/2;
-           		Ech3.setText(String.valueOf(xmax/2));
-           	}
-           	if (xmax==15) ZoomIn.setEnabled(false);
-       		ValiderEch.doClick();
-               });
-           ZoomOut.addActionListener((ActionEvent evt) -> {
-           	ZoomIn.setEnabled(true);
-           	zoomAction = true;
-           	Ech2.setText(String.valueOf(grad*2));
-       		Ech3.setText(String.valueOf(xmax*2));
-       		ValiderEch.doClick();
+        	   Container a = new Container();
+        	   a.setBounds(0, 0, panelDrawing.getWidth(), panelDrawing.getHeight());
+        	   if (a.contains(Conversion.doublepixelX(p.getA().getPoint().getX()*2), Conversion.doublepixelY(p.getA().getPoint().getY()*2)) && a.contains(Conversion.doublepixelX(p.getB().getPoint().getX()*2), Conversion.doublepixelY(p.getB().getPoint().getY()*2))) {
+        		   zoomAction = true;
+                  	Ech2.setText(String.valueOf(grad/2));
+              		Ech3.setText(String.valueOf(xmax/2));
+              		ValiderEch.doClick();
+        	   }
+        	   else ZoomIn.setEnabled(false);
+            });
+            ZoomOut.addActionListener((ActionEvent evt) -> {
+            	ZoomIn.setEnabled(true);
+            	zoomAction = true;
+            	Ech2.setText(String.valueOf(grad*2));
+            	Ech3.setText(String.valueOf(xmax*2));
+            	ValiderEch.doClick();
            	});
         
         // Listener de Valider
@@ -213,11 +213,11 @@ public class Control extends JPanel {
         	
         	// Action effectue si les valeurs sont conformes
         	if (pass1 && pass2) {
-        		grad = (int)Math.abs(Ech2.getTextDouble());
-        		xmax = (int)Math.abs(Ech3.getTextDouble());
+        		grad = Math.abs(Ech2.getTextDouble());
+        		xmax = Math.abs(Ech3.getTextDouble());
         		
         		if (grad==0) grad=1;
-        		if (xmax<15) xmax=15;
+        		if (xmax==0) xmax=1;
         		
         		Ech2.setText(String.valueOf(grad));
         		Ech3.setText(String.valueOf(xmax));
@@ -225,8 +225,8 @@ public class Control extends JPanel {
         		ech = (panelDrawing.getWidth()-40)/(2*xmax);
         		
         		// Setters de Drawing et de Conversion
-        		Conversion.setValue(ech, panelDrawing.getWidth(), panelDrawing.getHeight());
         		panelDrawing.repaint();
+        		Conversion.setEch(ech);
         		if (!zoomAction) {
                     panelHelp.setText("Placez les charges A et B et renseignez leurs valeurs");
             		
@@ -274,7 +274,6 @@ public class Control extends JPanel {
         	   panPoint.setVisible(false);
                Para.setEnabled(true);
                Para.doClick();
-               panelDrawing.forceUpdate=true;
                panelHelp.setText("Cliquez sur l'icone enregistrer pour sauvegarder une image du graphe. Cliquez sur la rubrique de votre choix");
            }
            panelDrawing.repaint();
@@ -284,170 +283,26 @@ public class Control extends JPanel {
 
     // Creation de la page 3 : Choix des parametres graphiques
     private void genPanPara() {
-    	panPara.setLayout(new BoxLayout(panPara, BoxLayout.Y_AXIS));
+    	panPara.setLayout(new GridBagLayout());
+    	GridBagConstraints gbc = new GridBagConstraints();
+        gbc.weightx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
     	
-    	// Texte "Options d'Affichage"
-    	EntryABM Para1 = new EntryABM("Options d'Affichage", "", true);
-    	panPara.add(Para1.getTextPanel());
     	
-    	// Groupe de JRadioButton (choix des parametres)
-    	JPanel Button = new JPanel();
-    	Button.setLayout(new BoxLayout(Button, BoxLayout.Y_AXIS));
-    	Button.setAlignmentX(Component.CENTER_ALIGNMENT);
-    	JRadioButton Gradient = new JRadioButton("Gradient");
-        JRadioButton Field = new JRadioButton("Champ Electrique");
-        JRadioButton Equipote = new JRadioButton("Equipotentielle");
-        JRadioButton FieldLines = new JRadioButton("Lignes de Champ");
-        JRadioButton ShowCoord = new JRadioButton("Afficher les Coordonnées");
-        JRadioButton ShowQ = new JRadioButton("Afficher les Charges");
-        Button.add(Gradient);
-        Button.add(Field);
-        Button.add(Equipote);
-        Button.add(FieldLines);
-        Button.add(ShowCoord);
-        Button.add(ShowQ);
-        Button.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        panPara.add(Button);
-        
-        // Creation des sous-panneaux de parametre
-        JPanel panGradient = new JPanel();
-        JPanel panField = new JPanel();
-        JPanel panEquipote = new JPanel();
-        JPanel panFieldLines = new JPanel();
-        panGradient.setVisible(false);
-    	panField.setVisible(false);
-    	panEquipote.setVisible(false);
-    	panFieldLines.setVisible(false);
-    	
-    	// Listener des JRadioButton
-    	ChangeListener GradientselectedListener = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				AbstractButton aButton = (AbstractButton)e.getSource();
-    	        ButtonModel aModel = aButton.getModel();
-    	        Gradientselected = aModel.isSelected();
-			}
-    	    };
-    	Gradient.addChangeListener(GradientselectedListener);
-    	ChangeListener FieldselectedListener = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				AbstractButton aButton = (AbstractButton)e.getSource();
-    	        ButtonModel aModel = aButton.getModel();
-    	        Fieldselected = aModel.isSelected();
-			}
-    	    };
-    	Field.addChangeListener(FieldselectedListener);
-    	ChangeListener EquipoteselectedListener = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				AbstractButton aButton = (AbstractButton)e.getSource();
-    	        ButtonModel aModel = aButton.getModel();
-    	        Equipoteselected = aModel.isSelected();
-			}
-    	    };
-    	 Equipote.addChangeListener(EquipoteselectedListener);
-    	 ChangeListener FieldLinesselectedListener = new ChangeListener() {
- 			@Override
- 			public void stateChanged(ChangeEvent e) {
- 				AbstractButton aButton = (AbstractButton)e.getSource();
-     	        ButtonModel aModel = aButton.getModel();
-     	        FieldLinesselected = aModel.isSelected();
- 			}
-     	    };
-     	 FieldLines.addChangeListener(FieldLinesselectedListener);
-    	 ChangeListener ShowCoordselectedListener = new ChangeListener() {
-    		@Override
-    		public void stateChanged(ChangeEvent e) {
-    			AbstractButton aButton = (AbstractButton)e.getSource();
-                ButtonModel aModel = aButton.getModel();
-                ShowCoordselected = aModel.isSelected();
-    		}
-            };
-        ShowCoord.addChangeListener(ShowCoordselectedListener);
-        ChangeListener ShowQselectedListener = new ChangeListener() {
-    		@Override
-    		public void stateChanged(ChangeEvent e) {
-    			AbstractButton aButton = (AbstractButton)e.getSource();
-                ButtonModel aModel = aButton.getModel();
-                ShowQselected = aModel.isSelected();
-    		}
-            };
-        ShowQ.addChangeListener(ShowQselectedListener);
-        
-        Gradient.addActionListener((ActionEvent evt) -> {
-        	panGradient.setVisible(Gradientselected);
-        	if (!Gradientselected) panelHelp.setText("");
-        	else panelHelp.setText("Gradient: Vous pouvez choisir le nombre de couleurs");
-        	panelDrawing.repaint();
-            });
-        Field.addActionListener((ActionEvent evt) -> {
-            panField.setVisible(Fieldselected);
-            if (Fieldselected) panelHelp.setText("Champ électrique: Vous pouvez choisir la longueur et la densité des vecteurs");
-            if (!Fieldselected) panelHelp.setText("");
-
-        	panelDrawing.repaint();
-            });
-        Equipote.addActionListener((ActionEvent evt) -> {
-        	panEquipote.setVisible(Equipoteselected);
-                if (Equipoteselected) panelHelp.setText("Equipotentielle: Sélectionnez un point M sur le graphe et validez. Vous pouvez aussi ajouter d'autres points ou en supprimer en cliquant sur retour ");
-                if (!Equipoteselected) panelHelp.setText("");
-
-                panelDrawing.repaint();
-            });
-        FieldLines.addActionListener((ActionEvent evt) -> {
-        	panFieldLines.setVisible(FieldLinesselected);
-        	panelDrawing.repaint();
-                if (FieldLinesselected) panelHelp.setText("Lignes de champ: Sélectionnez un point M sur le graphe et validez. Vous pouvez aussi ajouter d'autres points ou en supprimer en cliquant sur retour. Vous pouvez aussi ajouter la direction des lignes de champ. ");
-                if (!FieldLinesselected) panelHelp.setText("");
-
-            });
-        ShowCoord.addActionListener((ActionEvent evt) -> {
-                if (ShowCoordselected) panelHelp.setText("Affichage des coordonnées des points");
-                if (!ShowCoordselected) panelHelp.setText("");
-        	panelDrawing.repaint();
-            });
-        ShowQ.addActionListener((ActionEvent evt) -> {
-            if (ShowQselected) panelHelp.setText("Affichage des charges");
-                if (!ShowQselected) panelHelp.setText("");
-        	panelDrawing.repaint();
-            });
-        
     	// Sous-panneau Gradient
-        panGradient.setLayout(new GridLayout(0,1));
-        
-        // Texte "Gradient"
-    	EntryABM Para2 = new EntryABM("Gradient", "", true);
-    	panGradient.add(Para2.getTextPanel());
+    	
     	
     	// Text "Nombre de Couleurs" et de la zone de saisie associé
     	EntryABM Para3 = new EntryABM("Nombre de Couleurs :", "25", false);
-    	panGradient.add(Para3.getTextPanel());
+    	Para3.getTextPanel().setVisible(false);
     	
     	// JButton ValiderNbrColor
-    	JButton ValiderNbrColor = new JButton("Valider"); 
+    	JButton validerNbrCouleur = new JButton("Valider"); 
+    	validerNbrCouleur.setVisible(false);
     	
-    	// Potentiel précis
-        JRadioButton ShowCursor = new JRadioButton("Potentiel precis");
-    	ShowCursor.addActionListener((ActionEvent evt) -> {
-            if (GradientCursorselected) panelHelp.setText("Appuyez sur le graphique pour un potentiel précis");
-            if (!GradientCursorselected) panelHelp.setText("");
-
-        	panelDrawing.repaint();
-            });
-    	ChangeListener GradientCursorselectedListener = new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				AbstractButton aButton = (AbstractButton)e.getSource();
-    	        ButtonModel aModel = aButton.getModel();
-    	        GradientCursorselected = aModel.isSelected();
-			}
-    	    };
-    	ShowCursor.addChangeListener(GradientCursorselectedListener);
-    	
-    	// Listener de ValiderNbrColor
-    	ValiderNbrColor.addActionListener((ActionEvent evt) -> {
-    		if (Gradientselected) {
+    	validerNbrCouleur.addActionListener((ActionEvent evt) -> {
+    		if (gradientSelected) {
     			boolean passGradient = true;
             	// Vérifier si les valeurs saisies sont conformes
     			passGradient = Para3.check("Text");
@@ -463,24 +318,84 @@ public class Control extends JPanel {
             	}
     		}
             });
-    	panGradient.add(ValiderNbrColor);
-    	panGradient.add(ShowCursor);
-    	panPara.add(panGradient);
+    	
+    	// Potentiel précis
+        JRadioButton affCurseur = new JRadioButton("Potentiel precis");
+        affCurseur.setVisible(false);
+        
+        affCurseur.addActionListener((ActionEvent evt) -> {
+            if (gradientCurseurSelected) panelHelp.setText("Appuyez sur le graphique pour un potentiel précis");
+            if (!gradientCurseurSelected) panelHelp.setText("");
+
+        	panelDrawing.repaint();
+            });
+    	ChangeListener gradientCurseurSelectedListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				AbstractButton aButton = (AbstractButton)e.getSource();
+    	        ButtonModel aModel = aButton.getModel();
+    	        gradientCurseurSelected = aModel.isSelected();
+			}
+    	    };
+    	affCurseur.addChangeListener(gradientCurseurSelectedListener);
+    	
+    	
+    	// Sous-panneau Equipote
+    	
+    	
+    	// Saisie des points M0
+    	Para8 = new EntryABM("", false, p);
+
+        JPanel MXYequi = new JPanel(new GridBagLayout());
+        JLabel nbrMtext1 = new JLabel("M"+nbrMintEqui);
+        MXYequi.add(nbrMtext1);
+        MXYequi.add(Para8.getXY());
+        MXYequi.setVisible(false);
+        
+        // Bouton Valider
+        JButton Valider1 = new JButton("Valider"); 
+        Valider1.setVisible(false);
+        
+        Valider1.addActionListener((ActionEvent evt) -> {
+        	boolean pass=true;
+        	pass=Para8.check("M0");
+            if (pass) {
+            	MCoordEqui[nbrMintEqui][0]=Para8.getX();
+            	MCoordEqui[nbrMintEqui][1]=Para8.getY();
+            	nbrMintEqui++;
+            	Para8.setX(null);
+        		Para8.setY(null);
+            	nbrMtext1.setText("M"+nbrMintEqui);
+            	panelDrawing.repaint();
+            }
+        });
+        
+        // Bouton Retour
+        JButton Retour = new JButton("Retour"); 
+        Retour.setVisible(false);
+        
+        Retour.addActionListener((ActionEvent evt) -> {
+        	if (nbrMintEqui>0) {
+        		nbrMintEqui--;
+        		nbrMtext1.setText("M"+nbrMintEqui);
+        		Para8.setX(MCoordEqui[nbrMintEqui][0]);
+        		Para8.setY(MCoordEqui[nbrMintEqui][1]);
+        		panelDrawing.repaint();
+        	}
+            
+        });
+        
     	
     	// Sous-panneau Field
-    	panField.setLayout(new GridLayout(0,1));
         
-        // Texte "Champ Electrique"
-    	EntryABM Para4 = new EntryABM("Champ Electrique", "", true);
-    	panField.add(Para4.getTextPanel());
-    	
+        
     	// Text "Densite vectoriel" et de la zone de saisie associé
     	EntryABM Para5 = new EntryABM("Densite vectoriel :", "30", false);
-    	panField.add(Para5.getTextPanel());
+    	Para5.getTextPanel().setVisible(false);
     	
     	// Text "Longueur des vecteurs" et de la zone de saisie associé
     	EntryABM Para6 = new EntryABM("Longueur des vecteurs :", "20", false);
-    	panField.add(Para6.getTextPanel());
+    	Para6.getTextPanel().setVisible(false);
     	
     	// JButton ValiderDensiteLongueur
     	JButton ValiderDensiteLongueur = new JButton("Valider"); 
@@ -489,7 +404,7 @@ public class Control extends JPanel {
     	// Listener de ValiderDensiteLongueur
     	ValiderDensiteLongueur.addActionListener((ActionEvent evt) -> {
     		boolean passField1=true, passField2=true;
-    		if (Fieldselected) {
+    		if (champSelected) {
             	// Vérifier si les valeurs saisies sont conformes
     			passField1=Para5.check("Text");
     			passField2=Para6.check("Text");
@@ -507,71 +422,11 @@ public class Control extends JPanel {
             	}
     		}
             });
-    	panField.add(ValiderDensiteLongueur);
-    	panPara.add(panField);
+    	ValiderDensiteLongueur.setVisible(false);
     	
-    	
-    	// Sous-panneau Equipote
-    	panEquipote.setLayout(new GridLayout(0,1));
-        
-        // Texte "Equipotentielle"
-    	EntryABM Para7 = new EntryABM("Equipotentielle", "", true);
-    	panEquipote.add(Para7.getTextPanel());
-    	
-    	// Saisie des points M0
-    	Para8 = new EntryABM("", false, p);
-
-        JPanel MXYequi = new JPanel(new GridBagLayout());
-        JLabel nbrMtext1 = new JLabel("M"+nbrMintEqui);
-        MXYequi.add(nbrMtext1);
-        MXYequi.add(Para8.getXY());
-        panEquipote.add(MXYequi);
-        
-        // Bouton Valider
-        JPanel Bouton = new JPanel(new GridBagLayout());
-        JButton Valider1 = new JButton("Valider"); 
-        Bouton.add(Valider1);
-        
-        // Bouton Retour
-        JButton Retour = new JButton("Retour"); 
-        Bouton.add(Retour);
-    	
-        // Action d' Entrer
-        Valider1.addActionListener((ActionEvent evt) -> {
-        	boolean pass=true;
-        	pass=Para8.check("M0");
-            if (pass) {
-            	MCoordEqui[nbrMintEqui][0]=Para8.getX();
-            	MCoordEqui[nbrMintEqui][1]=Para8.getY();
-            	System.out.println(MCoordEqui[nbrMintEqui][0]+" "+MCoordEqui[nbrMintEqui][1]);
-            	nbrMintEqui++;
-            	Para8.setX(null);
-        		Para8.setY(null);
-            	nbrMtext1.setText("M"+nbrMintEqui);
-            	panelDrawing.repaint();
-            }
-        });
-        
-        // Action de Retour
-        Retour.addActionListener((ActionEvent evt) -> {
-        	if (nbrMintEqui>0) {
-        		nbrMintEqui--;
-        		nbrMtext1.setText("M"+nbrMintEqui);
-        		Para8.setX(MCoordEqui[nbrMintEqui][0]);
-        		Para8.setY(MCoordEqui[nbrMintEqui][1]);
-        		panelDrawing.repaint();
-        	}
-            
-        });
-        panEquipote.add(Bouton);
-        panPara.add(panEquipote);
     
     // Sous-panneau FieldLines
-        panFieldLines.setLayout(new GridLayout(0,1));
-        
-        // Texte "Equipotentielle"
-    	EntryABM Para9 = new EntryABM("Lignes de Champ", "", true);
-    	panFieldLines.add(Para9.getTextPanel());
+    	
     	
     	// Saisie des points M0
     	Para10 = new EntryABM("", false, p);
@@ -580,39 +435,18 @@ public class Control extends JPanel {
         JLabel nbrMtext2 = new JLabel("M"+nbrMintFieldLines+"'");
         MXYfield.add(nbrMtext2);
         MXYfield.add(Para10.getXY());
-        panFieldLines.add(MXYfield);
+        MXYfield.setVisible(false);
         
         // Bouton Valider
-        JPanel BoutonFieldLines = new JPanel(new GridBagLayout());
         JButton Valider2 = new JButton("Valider"); 
-        BoutonFieldLines.add(Valider2);
+        Valider2.setVisible(false);
         
-        // Bouton Retour
-        JButton Retour1 = new JButton("Retour"); 
-        BoutonFieldLines.add(Retour1);
-    	
-     // Afficher la direction des lignes de champ
-        JRadioButton FieldLinesDirection = new JRadioButton("Direction lignes de champ");
-        ChangeListener FieldLinesDirectionselectedListener = new ChangeListener() {
-    		@Override
-    		public void stateChanged(ChangeEvent e) {
-    			AbstractButton aButton = (AbstractButton)e.getSource();
-                ButtonModel aModel = aButton.getModel();
-                showFieldLinesDirection = aModel.isSelected();
-                panelDrawing.repaint();
-    		}
-            };
-        FieldLinesDirection.addChangeListener(FieldLinesDirectionselectedListener);
-        panFieldLines.add(FieldLinesDirection);
-        
-        // Action d' Entrer
         Valider2.addActionListener((ActionEvent evt) -> {
         	boolean pass=true;
         	pass=Para10.check("M0");
             if (pass) {
             	MCoordFieldLines[nbrMintFieldLines][0]=Para10.getX();
             	MCoordFieldLines[nbrMintFieldLines][1]=Para10.getY();
-            	System.out.println(MCoordFieldLines[nbrMintFieldLines][0]+" "+MCoordFieldLines[nbrMintFieldLines][1]);
             	nbrMintFieldLines++;
             	Para10.setX(null);
         		Para10.setY(null);
@@ -621,7 +455,11 @@ public class Control extends JPanel {
             }
         });
         
-        // Action de Retour
+        // Bouton Retour
+        JButton Retour1 = new JButton("Retour");
+        
+        Retour1.setVisible(false);
+    	
         Retour1.addActionListener((ActionEvent evt) -> {
         	if (nbrMintFieldLines>0) {
         		nbrMintFieldLines--;
@@ -632,9 +470,212 @@ public class Control extends JPanel {
         	}
             
         });
-        panFieldLines.add(BoutonFieldLines);
-        panPara.add(panFieldLines);
         
+     // Afficher la direction des lignes de champ
+        JRadioButton FieldLinesDirection = new JRadioButton("Direction lignes de champ");
+        
+        ChangeListener FieldLinesDirectionselectedListener = new ChangeListener() {
+    		@Override
+    		public void stateChanged(ChangeEvent e) {
+    			AbstractButton aButton = (AbstractButton)e.getSource();
+                ButtonModel aModel = aButton.getModel();
+                affChampLigneDirection = aModel.isSelected();
+                panelDrawing.repaint();
+    		}
+            };
+        FieldLinesDirection.addChangeListener(FieldLinesDirectionselectedListener);
+        FieldLinesDirection.setVisible(false);
+
+    	// Groupe de JRadioButton (choix des parametres)
+    	JPanel buttonPot = new JPanel();
+    	buttonPot.setLayout(new GridBagLayout());
+    	buttonPot.setAlignmentX(Component.LEFT_ALIGNMENT);
+    	JRadioButton gradient = new JRadioButton("Gradient");
+        JRadioButton equipote = new JRadioButton("Équipotentielle");
+        buttonPot.add(gradient,gbc);
+        buttonPot.add(Para3.getTextPanel(),gbc);
+        buttonPot.add(validerNbrCouleur,gbc);
+        buttonPot.add(affCurseur,gbc);
+        buttonPot.add(equipote,gbc);
+        buttonPot.add(MXYequi,gbc);
+        buttonPot.add(Valider1,gbc);
+        buttonPot.add(Retour,gbc);
+        buttonPot.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        
+    	JPanel buttonCha = new JPanel();
+    	buttonCha.setLayout(new GridBagLayout());
+    	buttonCha.setAlignmentX(Component.LEFT_ALIGNMENT);
+    	JRadioButton champ = new JRadioButton("Champ");
+        JRadioButton champLigne = new JRadioButton("Ligne de Champ");
+        buttonCha.add(champ,gbc);
+        buttonCha.add(Para5.getTextPanel(),gbc);
+        buttonCha.add(Para6.getTextPanel(),gbc);
+        buttonCha.add(ValiderDensiteLongueur,gbc);
+        buttonCha.add(champLigne,gbc);
+        buttonCha.add(MXYfield,gbc);
+        buttonCha.add(Valider2,gbc);
+        buttonCha.add(Retour1,gbc);
+        buttonCha.add(FieldLinesDirection,gbc);
+        buttonCha.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+        
+    	JPanel buttonAut = new JPanel();
+    	buttonAut.setLayout(new GridBagLayout());
+    	buttonAut.setAlignmentX(Component.LEFT_ALIGNMENT);
+    	JRadioButton affCoord = new JRadioButton("Afficher les Coordonnées");
+        JRadioButton affQ = new JRadioButton("Afficher les Charges");
+        buttonAut.add(affCoord,gbc);
+        buttonAut.add(affQ,gbc);
+        buttonAut.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
+
+    	// Texte "Potentiel:"
+    	EntryABM paraPot = new EntryABM("Potentiel:", "", true);
+    	panPara.add(paraPot.getTextPanel(), gbc);
+    	panPara.add(buttonPot, gbc);
+    	
+    	// Texte "Champ:"
+    	EntryABM paraCha = new EntryABM("Champ:", "", true);
+    	panPara.add(paraCha.getTextPanel(), gbc);
+    	panPara.add(buttonCha, gbc);
+    	
+    	// Texte "Autre:"
+    	EntryABM paraAut = new EntryABM("Autre:", "", true);
+    	panPara.add(paraAut.getTextPanel(), gbc);
+    	panPara.add(buttonAut, gbc);
+    	
+    	// Listener des JRadioButton
+    	ChangeListener gradientSelectedListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				AbstractButton aButton = (AbstractButton)e.getSource();
+    	        ButtonModel aModel = aButton.getModel();
+    	        gradientSelected = aModel.isSelected();
+			}
+    	    };
+    	gradient.addChangeListener(gradientSelectedListener);
+    	ChangeListener champSelectedListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				AbstractButton aButton = (AbstractButton)e.getSource();
+    	        ButtonModel aModel = aButton.getModel();
+    	        champSelected = aModel.isSelected();
+			}
+    	    };
+    	champ.addChangeListener(champSelectedListener);
+    	ChangeListener equipoteSelectedListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				AbstractButton aButton = (AbstractButton)e.getSource();
+    	        ButtonModel aModel = aButton.getModel();
+    	        equipoteSelected = aModel.isSelected();
+			}
+    	    };
+    	 equipote.addChangeListener(equipoteSelectedListener);
+    	 ChangeListener champLigneSelectedListener = new ChangeListener() {
+ 			@Override
+ 			public void stateChanged(ChangeEvent e) {
+ 				AbstractButton aButton = (AbstractButton)e.getSource();
+     	        ButtonModel aModel = aButton.getModel();
+     	        champLigneSelected = aModel.isSelected();
+ 			}
+     	    };
+     	 champLigne.addChangeListener(champLigneSelectedListener);
+    	 ChangeListener affCoordSelectedListener = new ChangeListener() {
+    		@Override
+    		public void stateChanged(ChangeEvent e) {
+    			AbstractButton aButton = (AbstractButton)e.getSource();
+                ButtonModel aModel = aButton.getModel();
+                affCoordSelected = aModel.isSelected();
+    		}
+            };
+        affCoord.addChangeListener(affCoordSelectedListener);
+        ChangeListener affQSelectedListener = new ChangeListener() {
+    		@Override
+    		public void stateChanged(ChangeEvent e) {
+    			AbstractButton aButton = (AbstractButton)e.getSource();
+                ButtonModel aModel = aButton.getModel();
+                affQSelected = aModel.isSelected();
+    		}
+            };
+        affQ.addChangeListener(affQSelectedListener);
+        
+        gradient.addActionListener((ActionEvent evt) -> {
+        	if (!gradientSelected) {
+        		panelHelp.setText("");
+        		Para3.getTextPanel().setVisible(false);
+                validerNbrCouleur.setVisible(false);
+                affCurseur.setVisible(false);
+        	}
+        	else {
+        		panelHelp.setText("Gradient: Vous pouvez choisir le nombre de couleurs");
+                Para3.getTextPanel().setVisible(true);
+                validerNbrCouleur.setVisible(true);
+                affCurseur.setVisible(true);
+        	}
+        	panelDrawing.repaint();
+            });
+        champ.addActionListener((ActionEvent evt) -> {
+            if (champSelected) {
+            	panelHelp.setText("Champ électrique: Vous pouvez choisir la longueur et la densité des vecteurs");
+            	Para5.getTextPanel().setVisible(true);
+            	Para6.getTextPanel().setVisible(true);
+            	ValiderDensiteLongueur.setVisible(true);
+            }
+            if (!champSelected) {
+            	panelHelp.setText("");
+            	Para5.getTextPanel().setVisible(false);
+            	Para6.getTextPanel().setVisible(false);
+            	ValiderDensiteLongueur.setVisible(false);
+            }
+
+        	panelDrawing.repaint();
+            });
+        equipote.addActionListener((ActionEvent evt) -> {
+                if (equipoteSelected) {
+                	panelHelp.setText("Equipotentielle: Sélectionnez un point M sur le graphe et validez. Vous pouvez aussi ajouter d'autres points ou en supprimer en cliquant sur retour ");
+                	MXYequi.setVisible(true);
+                	Valider1.setVisible(true);
+                    Retour.setVisible(true);
+                }
+                if (!equipoteSelected) {
+                	panelHelp.setText("");
+                	MXYequi.setVisible(false);
+                	Valider1.setVisible(false);
+                    Retour.setVisible(false);
+                }
+
+                panelDrawing.repaint();
+            });
+        champLigne.addActionListener((ActionEvent evt) -> {
+        	panelDrawing.repaint();
+                if (champLigneSelected) {
+                	panelHelp.setText("Lignes de champ: Sélectionnez un point M sur le graphe et validez. Vous pouvez aussi ajouter d'autres points ou en supprimer en cliquant sur retour. Vous pouvez aussi ajouter la direction des lignes de champ. ");
+                	MXYfield.setVisible(true);
+                    Valider2.setVisible(true);
+                    Retour1.setVisible(true);
+                    FieldLinesDirection.setVisible(true);
+                }
+                if (!champLigneSelected) {
+                	panelHelp.setText("");
+                	MXYfield.setVisible(false);
+                    Valider2.setVisible(false);
+                    Retour1.setVisible(false);
+                    FieldLinesDirection.setVisible(false);
+                }
+
+            });
+        affCoord.addActionListener((ActionEvent evt) -> {
+                if (affCoordSelected) panelHelp.setText("Affichage des coordonnées des points");
+                if (!affCoordSelected) panelHelp.setText("");
+        	panelDrawing.repaint();
+            });
+        affQ.addActionListener((ActionEvent evt) -> {
+            if (affQSelected) panelHelp.setText("Affichage des charges");
+                if (!affQSelected) panelHelp.setText("");
+        	panelDrawing.repaint();
+            });
+        JPanel size = new JPanel();
+        size.setPreferredSize(new Dimension(240, 1));
+        panPara.add(size);
 }
     public void setpanelDrawing(Drawing panelDrawing){
         Control.panelDrawing = panelDrawing;

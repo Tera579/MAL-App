@@ -173,7 +173,6 @@ public class EntryABM {
 		default:
 			System.out.println("Le point n'est pas reconnu :)");
 		}
-		System.out.println("check "+valid);
 		return valid;
 	}
 	public Double getX() {
