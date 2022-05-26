@@ -1,8 +1,12 @@
 package GUI;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 import Business.Particule;
 import Business.Point;
@@ -19,12 +23,18 @@ public class MyPanel extends JPanel {
 	        
 	        Control panelControl = new Control(p);
 	        Help panelHelp = new Help();
+	        panelHelp.setText("Choisissez la taille du graphe");
 	        Drawing panelDrawing = new Drawing(p, panelControl);
 	        
+	        /*JPanel credit = new JPanel();
+	        JLabel creditLabel = new JLabel("Projet informatique de: Amélie BOVE, Louis QUINOT et Marie TABARDIN");   
+	        credit.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+	        credit.add(creditLabel);*/
 	        
 	        this.add(panelDrawing, BorderLayout.CENTER);
 	        this.add(panelHelp, BorderLayout.NORTH);
-	        this.add(panelControl, BorderLayout.WEST);  
+	        this.add(panelControl, BorderLayout.WEST); 
+	        //this.add(credit, BorderLayout.SOUTH);
 	        
 	        panelControl.setpanelDrawing(panelDrawing);
 	        panelControl.setpanelHelp(panelHelp);

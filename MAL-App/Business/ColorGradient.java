@@ -11,6 +11,7 @@ public class ColorGradient {
 	//}
 	public static Color getColorGradient(double p, double plus, double minus, int nbrColor) {
 	//HSB 
+		if (p<0.009 && p>-0.009) p=0;
 		if (minus==0) minus=0.01;
 		if (plus==0) plus=0.01;
 		

@@ -29,7 +29,8 @@ public class Potential {
         double qa = this.a.q*1e-9;
         double qb = this.b.q*1e-9;
         double c = (double) 1 / (4 * Math.PI * 8.85419782e-12);
-        v =  ((double)((int)((c * (qa / da + qb / db))*100)))/100;
+        v =  c * (qa / da + qb / db);
+        if (v==Double.POSITIVE_INFINITY || v==Double.NEGATIVE_INFINITY) v=0;
     }
     
     public double getV() {

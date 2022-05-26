@@ -113,6 +113,9 @@ public class EntryABM {
         		valid=false;
         		qtext.setText(""+p.getA().getQ());
         		System.out.println("le Q de A est non conforme");}
+		   p.getA().setQ(q);
+      	   p.getA().getPoint().setX(x);
+      	   p.getA().getPoint().setY(y);
 			break;
 			
 		case "B":
@@ -131,6 +134,9 @@ public class EntryABM {
         		valid=false;
         		qtext.setText(""+p.getB().getQ());
         		System.out.println("le Q de B est non conforme");}
+			p.getB().setQ(q);
+	      	p.getB().getPoint().setX(x);
+	        p.getB().getPoint().setY(y);
 			break;
 			
 		case "M":

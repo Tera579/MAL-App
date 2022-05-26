@@ -23,7 +23,9 @@ public class Conversion {
     	double valdouble=-(((double)valint - (double)Height/2)/ech) ;
 		return valdouble;
     }
-    public static void setEch(double echdraw) {
+    public static void setValue(double echdraw, int width, int height) {
     	ech = echdraw;
+    	Width = width;
+    	Height = height;
     }
 }

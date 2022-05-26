@@ -22,26 +22,18 @@ public class Control extends JPanel {
     // Constucteur
     private Potential p;
     
-    // Buttons
-    JButton Valider;
-    
-    // PanelDrawing var
-    public String mode = "Zero";
-    
-    // Stockage du potentiel en chaques points
+    // Gradient de couleur
     public int nbrColor = 25;
-    public double[][] pot;
-    public double plus, minus;
-    
 	
-	// Champ electirque
+	// Champ vecteurs electirque
 	public int densite = 30;
 	public int longueur = 20;
 
     // Selection de l'echelle
-    public double xmax;
-    public double grad;
+    public double xmax=15;
+    public double grad=1;
 	public double ech;
+    private boolean zoomAction;
     
     // Variable de Equipote
     public int nbrMintEqui=0;
@@ -68,9 +60,9 @@ public class Control extends JPanel {
     public boolean ShowMselected=false;
     public boolean ShowQselected=false;
     public boolean showFieldLinesDirection=false;
+    public boolean GradientCursorselected=false;
     
     // Variable saisie des points
-    public int saisie = 0; // 0:A, 1:B, 2: Equipot M, 3: Field M, 4: Equipot+Field M
     public EntryABM AXYQ, BXYQ, Para8, Para10;
     
     // Bouton enregistrer
@@ -129,8 +121,6 @@ public class Control extends JPanel {
         Point.setFocusable(false);
         Para.setFocusable(false);
         
-        // Active la fenetre Graph de base
-        Graph.doClick();
         
         /* Desactive les JRadioButton Point et Para. Pour ne pas causer d'erreur de programme, 
          * il faut d'abord selectionner l'echelle puis les points et enfin les parametres graphiques.
@@ -143,24 +133,22 @@ public class Control extends JPanel {
         	panEch.setVisible(true);
             panPoint.setVisible(false);
             panPara.setVisible(false);
-            Point.setEnabled(false);
-            Para.setEnabled(false);
             Enregistrer.setVisible(false);
+            panelHelp.setText("Choisissez la taille du graphe");
             });
         Point.addActionListener((ActionEvent evt) -> {
         	panEch.setVisible(false);
             panPoint.setVisible(true);
             panPara.setVisible(false);
-            Para.setEnabled(false);
             Enregistrer.setVisible(false);
-            Valider.setText("Valider A");
-            saisie=0; // reset des points click
+            panelHelp.setText("Placez les charges A et B et renseignez leurs valeurs");
             });
         Para.addActionListener((ActionEvent evt) -> {
         	panEch.setVisible(false);
             panPoint.setVisible(false);
             panPara.setVisible(true);
             Enregistrer.setVisible(true);
+            panelHelp.setText("Cliquez sur l'icone enregistrer pour sauvegarder une image du graphe. Cliquez sur la rubrique de votre choix");
             });
         
         this.add(panEch);
@@ -184,9 +172,37 @@ public class Control extends JPanel {
     	// Saisie de xmax
     	EntryABM Ech3 = new EntryABM("Xmax =", "15", false);
     	panEch.add(Ech3.getTextPanel());
-    	
-    	// Bouton Valider
-        JButton ValiderEch = new JButton("Valider"); 
+
+        // Bouton Zoom
+           JPanel Zoom = new JPanel();
+           JButton ZoomOut = new JButton("-"); 
+           JButton ZoomIn = new JButton("+"); 
+           ZoomIn.setEnabled(false);
+           Zoom.add(ZoomIn);
+           Zoom.add(ZoomOut);
+           
+           
+       	// Bouton Valider
+           JButton ValiderEch = new JButton("Valider"); 
+           
+        // Listener de Zoom
+           ZoomIn.addActionListener((ActionEvent evt) -> {
+           	zoomAction = true;
+           	Ech2.setText(String.valueOf(grad/2));
+           	if (xmax>15) {
+           		xmax=xmax/2;
+           		Ech3.setText(String.valueOf(xmax/2));
+           	}
+           	if (xmax==15) ZoomIn.setEnabled(false);
+       		ValiderEch.doClick();
+               });
+           ZoomOut.addActionListener((ActionEvent evt) -> {
+           	ZoomIn.setEnabled(true);
+           	zoomAction = true;
+           	Ech2.setText(String.valueOf(grad*2));
+       		Ech3.setText(String.valueOf(xmax*2));
+       		ValiderEch.doClick();
+           	});
         
         // Listener de Valider
         ValiderEch.addActionListener((ActionEvent evt) -> {
@@ -201,7 +217,7 @@ public class Control extends JPanel {
         		xmax = (int)Math.abs(Ech3.getTextDouble());
         		
         		if (grad==0) grad=1;
-        		if (xmax==0) xmax=1;
+        		if (xmax<15) xmax=15;
         		
         		Ech2.setText(String.valueOf(grad));
         		Ech3.setText(String.valueOf(xmax));
@@ -209,18 +225,22 @@ public class Control extends JPanel {
         		ech = (panelDrawing.getWidth()-40)/(2*xmax);
         		
         		// Setters de Drawing et de Conversion
-        		Conversion.setEch(ech);
-        		mode = "Axes";
+        		Conversion.setValue(ech, panelDrawing.getWidth(), panelDrawing.getHeight());
         		panelDrawing.repaint();
-        		
-        		// Reactive le JRadioButton de la 2e page et change de page
-        		Point.setEnabled(true);
-        		panEch.setVisible(false);
-        		Point.doClick();
-        		Valider.setText("Valider A");
+        		if (!zoomAction) {
+                    panelHelp.setText("Placez les charges A et B et renseignez leurs valeurs");
+            		
+            		// Reactive le JRadioButton de la 2e page et change de page
+            		Point.setEnabled(true);
+            		panEch.setVisible(false);
+            		Point.doClick();
+        		}
+        		zoomAction = false;
         	}
         	
             });
+        
+        panEch.add(Zoom);
         panEch.add(ValiderEch);
     }
     
@@ -240,54 +260,24 @@ public class Control extends JPanel {
         
         // Bouton Valider
         JPanel Bouton = new JPanel();
-        Valider = new JButton("Valider A"); 
+        JButton Valider = new JButton("Valider"); 
         Bouton.add(Valider);
         panPoint.add(Bouton);
         // Action de Valider
         Valider.addActionListener((ActionEvent evt) -> {
-        	if (saisie==0) Valider.setText("Valider B");
-        	if (saisie<2) saisie++;
-            boolean passA=true, passB=true;
+            boolean passA=false, passB=false;
             // Vérifier si les valeurs saisies sont conformes
             passA = AXYQ.check("A");
             passB = BXYQ.check("B");
-            
-           // Action effectue si les valeurs sont conformes
-           if (passA && passB && saisie==2) {
-        	   System.out.println("passA et passB");
-        	   // Conversion des valeurs saisies en double
-        	   double qA= ((double)(int)(AXYQ.getQ()*100))/100;
-        	   double xA= ((double)(int)(AXYQ.getX()*100))/100;
-        	   double yA= ((double)(int)(AXYQ.getY()*100))/100;
-        	   double qB= ((double)(int)(BXYQ.getQ()*100))/100;
-        	   double xB= ((double)(int)(BXYQ.getX()*100))/100;
-        	   double yB= ((double)(int)(BXYQ.getY()*100))/100;
-        	   
-        	   // Enregistrement des valeurs saisies dans A,B et M
-        	   p.getA().setQ(qA);
-        	   p.getA().getPoint().setX(xA);
-        	   p.getA().getPoint().setY(yA);
-        	   p.getB().setQ(qB);
-        	   p.getB().getPoint().setX(xB);
-        	   p.getB().getPoint().setY(yB);
-        	   
-        	   // Calcul du champ electrique (utilise pour le gradient)
-        	   PotentialField Field = new PotentialField(p);
-        	   pot = Field.getPotentialField();
-        	   plus = Field.getPotentialFieldPlus();
-        	   minus = Field.getPotentialFieldMinus();
-        	   
-        	   // Setters de Drawing
-        	   if (Gradientselected) mode = "Grad";
-        	   else mode = "Clas";
-        	   panelDrawing.repaint();
-        	   
+           if (passA && passB) {
         	   // Reactive le JRadioButton de la 3e page et changement de page
         	   panPoint.setVisible(false);
                Para.setEnabled(true);
                Para.doClick();
+               panelDrawing.forceUpdate=true;
+               panelHelp.setText("Cliquez sur l'icone enregistrer pour sauvegarder une image du graphe. Cliquez sur la rubrique de votre choix");
            }
-         
+           panelDrawing.repaint();
             });
         
     }
@@ -387,32 +377,39 @@ public class Control extends JPanel {
         
         Gradient.addActionListener((ActionEvent evt) -> {
         	panGradient.setVisible(Gradientselected);
-        	if (!Gradientselected) {
-        		mode = "Clas";
-        		panelHelp.setText("Help Panel");
-        	}
-        	else {
-        		mode = "Grad";
-        		panelHelp.setText("Appuyer sur le graphique pour un potentiel précis");
-        	}
+        	if (!Gradientselected) panelHelp.setText("");
+        	else panelHelp.setText("Gradient: Vous pouvez choisir le nombre de couleurs");
         	panelDrawing.repaint();
             });
         Field.addActionListener((ActionEvent evt) -> {
             panField.setVisible(Fieldselected);
+            if (Fieldselected) panelHelp.setText("Champ électrique: Vous pouvez choisir la longueur et la densité des vecteurs");
+            if (!Fieldselected) panelHelp.setText("");
+
         	panelDrawing.repaint();
             });
         Equipote.addActionListener((ActionEvent evt) -> {
         	panEquipote.setVisible(Equipoteselected);
-        	panelDrawing.repaint();
+                if (Equipoteselected) panelHelp.setText("Equipotentielle: Sélectionnez un point M sur le graphe et validez. Vous pouvez aussi ajouter d'autres points ou en supprimer en cliquant sur retour ");
+                if (!Equipoteselected) panelHelp.setText("");
+
+                panelDrawing.repaint();
             });
         FieldLines.addActionListener((ActionEvent evt) -> {
         	panFieldLines.setVisible(FieldLinesselected);
         	panelDrawing.repaint();
+                if (FieldLinesselected) panelHelp.setText("Lignes de champ: Sélectionnez un point M sur le graphe et validez. Vous pouvez aussi ajouter d'autres points ou en supprimer en cliquant sur retour. Vous pouvez aussi ajouter la direction des lignes de champ. ");
+                if (!FieldLinesselected) panelHelp.setText("");
+
             });
         ShowCoord.addActionListener((ActionEvent evt) -> {
+                if (ShowCoordselected) panelHelp.setText("Affichage des coordonnées des points");
+                if (!ShowCoordselected) panelHelp.setText("");
         	panelDrawing.repaint();
             });
         ShowQ.addActionListener((ActionEvent evt) -> {
+            if (ShowQselected) panelHelp.setText("Affichage des charges");
+                if (!ShowQselected) panelHelp.setText("");
         	panelDrawing.repaint();
             });
         
@@ -430,6 +427,24 @@ public class Control extends JPanel {
     	// JButton ValiderNbrColor
     	JButton ValiderNbrColor = new JButton("Valider"); 
     	
+    	// Potentiel précis
+        JRadioButton ShowCursor = new JRadioButton("Potentiel precis");
+    	ShowCursor.addActionListener((ActionEvent evt) -> {
+            if (GradientCursorselected) panelHelp.setText("Appuyez sur le graphique pour un potentiel précis");
+            if (!GradientCursorselected) panelHelp.setText("");
+
+        	panelDrawing.repaint();
+            });
+    	ChangeListener GradientCursorselectedListener = new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				AbstractButton aButton = (AbstractButton)e.getSource();
+    	        ButtonModel aModel = aButton.getModel();
+    	        GradientCursorselected = aModel.isSelected();
+			}
+    	    };
+    	ShowCursor.addChangeListener(GradientCursorselectedListener);
+    	
     	// Listener de ValiderNbrColor
     	ValiderNbrColor.addActionListener((ActionEvent evt) -> {
     		if (Gradientselected) {
@@ -444,12 +459,12 @@ public class Control extends JPanel {
             			nbrColor =10;
             			Para3.setText(String.valueOf(nbrColor));
             		}
-            		mode = "Grad";
             		panelDrawing.repaint();
             	}
     		}
             });
     	panGradient.add(ValiderNbrColor);
+    	panGradient.add(ShowCursor);
     	panPara.add(panGradient);
     	
     	// Sous-panneau Field
@@ -621,12 +636,10 @@ public class Control extends JPanel {
         panPara.add(panFieldLines);
         
 }
-    
-    // Instancie les differents panneaux (par MyPanel)
-    public void setpanelDrawing(Drawing panelDrawing) {
+    public void setpanelDrawing(Drawing panelDrawing){
         Control.panelDrawing = panelDrawing;
     }
-    public void setpanelHelp(Help panelHelp) {
+    public void setpanelHelp(Help panelHelp){
         Control.panelHelp = panelHelp;
     }
 }
