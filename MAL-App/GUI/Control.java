@@ -144,6 +144,10 @@ public class Control extends JPanel {
             panelHelp.setText("Placez les charges A et B et renseignez leurs valeurs");
             });
         Para.addActionListener((ActionEvent evt) -> {
+        	Para8.setX(null);
+        	Para8.setY(null);
+        	Para10.setX(null);
+        	Para10.setY(null);
         	panEch.setVisible(false);
             panPoint.setVisible(false);
             panPara.setVisible(true);

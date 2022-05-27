@@ -9,8 +9,6 @@ import javax.swing.JFrame;
 public class MyFrame extends JFrame{
 	
 	 private static final long serialVersionUID = 1L;
-	 GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-	 GraphicsDevice device = env.getDefaultScreenDevice();
 	 
 	 public MyFrame() {
 		 	JFrame MyFrame = new JFrame();
@@ -19,10 +17,10 @@ public class MyFrame extends JFrame{
 		 	MyFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		 	MyFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		 	MyFrame.setResizable(false);
+		 	MyFrame.setUndecorated(true);
 		 	MyFrame.add(new MyPanel());
 		 	MyFrame.pack();
 		 	MyFrame.setVisible(true);
-		 	device.setFullScreenWindow(MyFrame);
 	    }
 	 
 }
