@@ -102,7 +102,6 @@ public class Drawing extends JPanel implements MouseListener{
     	int xpixel = Conversion.doublepixelX(xStart);
     	int ypixel = Conversion.doublepixelY(yStart);
 		boolean breaked = false;
-		g2.setColor(Color.BLACK);
     	int espace = 3;
     	Polygon a = new Polygon();
 		a = new Polygon(new int[]{xpixel-espace, xpixel-espace, xpixel+espace, xpixel+espace}, new int[]{ypixel-espace, ypixel+espace, ypixel+espace, ypixel-espace}, 4);
@@ -180,6 +179,7 @@ public class Drawing extends JPanel implements MouseListener{
         		dy = (yA-yB)/(numLines);
         	}
         	try {
+        		g2.setColor(Color.RED);
         		int j=0;
         		for (int i=0; i<numLines; i++) {
         			j=j+1;
@@ -189,6 +189,7 @@ public class Drawing extends JPanel implements MouseListener{
         	catch(NullPointerException b){}
         	
         	try {
+        		g2.setColor(Color.BLACK);
         		for (int i=0; i<panelControl.nbrMintEqui; i++) {
         			int xpixel = Conversion.doublepixelX(panelControl.MCoordEqui[i][0]);
         	    	int ypixel = Conversion.doublepixelY(panelControl.MCoordEqui[i][1]);
@@ -262,7 +263,7 @@ public class Drawing extends JPanel implements MouseListener{
 		b = new Polygon(new int[]{xBPixel-espace, xBPixel-espace, xBPixel+espace, xBPixel+espace}, new int[]{yBPixel-espace, yBPixel+espace, yBPixel+espace, yBPixel-espace}, 4);
 		double d=1;
 		try {
-        	g2.setColor(Color.DARK_GRAY);
+        	g2.setColor(Color.BLUE);
     	    for (int i=0; i<numLines; i++) {
     	    	if (p.getA().getQ()==0 && p.getB().getQ()!=0) {
     	    		drawFieldLines (xB + d*Math.cos(Math.PI/numLines*2*i), yB - d*Math.sin(Math.PI/numLines*2*i), 1, a ,b);
@@ -293,8 +294,8 @@ public class Drawing extends JPanel implements MouseListener{
     		}
     	}
     	catch(NullPointerException c){}
-    	g2.setColor(Color.BLACK);
     	try {
+    		g2.setColor(Color.BLACK);
     		for (int x=0; x<panelControl.nbrMintFieldLines; x++) {
     			int xpixel = Conversion.doublepixelX(panelControl.MCoordFieldLines[x][0]);
     			int ypixel = Conversion.doublepixelY(panelControl.MCoordFieldLines[x][1]);

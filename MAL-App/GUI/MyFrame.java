@@ -18,12 +18,11 @@ public class MyFrame extends JFrame{
 		 	MyFrame.setPreferredSize(getPreferredSize());
 		 	MyFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		 	MyFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-		 	MyFrame.setResizable(true);
+		 	MyFrame.setResizable(false);
 		 	MyFrame.add(new MyPanel());
 		 	MyFrame.pack();
 		 	MyFrame.setVisible(true);
-		 	//device.setFullScreenWindow(MyFrame);
-		 	
+		 	device.setFullScreenWindow(MyFrame);
 	    }
 	 
 }

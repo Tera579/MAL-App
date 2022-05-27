@@ -321,7 +321,6 @@ public class Control extends JPanel {
     	
     	// Potentiel précis
         JRadioButton affCurseur = new JRadioButton("Potentiel precis");
-        affCurseur.setVisible(false);
         
         affCurseur.addActionListener((ActionEvent evt) -> {
             if (gradientCurseurSelected) panelHelp.setText("Appuyez sur le graphique pour un potentiel précis");
@@ -603,13 +602,11 @@ public class Control extends JPanel {
         		panelHelp.setText("");
         		Para3.getTextPanel().setVisible(false);
                 validerNbrCouleur.setVisible(false);
-                affCurseur.setVisible(false);
         	}
         	else {
         		panelHelp.setText("Gradient: Vous pouvez choisir le nombre de couleurs");
                 Para3.getTextPanel().setVisible(true);
                 validerNbrCouleur.setVisible(true);
-                affCurseur.setVisible(true);
         	}
         	panelDrawing.repaint();
             });
