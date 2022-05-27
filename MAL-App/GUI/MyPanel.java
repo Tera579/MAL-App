@@ -30,15 +30,15 @@ public class MyPanel extends JPanel {
 	        Drawing panelDrawing = new Drawing(p, panelControl);
 	        panelDrawing.setPreferredSize(new Dimension(750, 800));
 	        
-	        /*JPanel credit = new JPanel();
-	        JLabel creditLabel = new JLabel("Projet informatique de: Amélie BOVE, Louis QUINOT et Marie TABARDIN");   
+	        JPanel credit = new JPanel();
+	        JLabel creditLabel = new JLabel("Projet informatique de: Amélie BOVE, Louis QUINOT et Marie TABARDIN       Année 2021/2022 EEIGM");   
 	        credit.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-	        credit.add(creditLabel);*/
+	        credit.add(creditLabel);
 	        
 	        this.add(panelDrawing, BorderLayout.CENTER);
 	        this.add(panelHelp, BorderLayout.NORTH);
 	        this.add(panelControl, BorderLayout.WEST); 
-	        //this.add(credit, BorderLayout.SOUTH);
+	        this.add(credit, BorderLayout.SOUTH);
 	        
 	        panelControl.setpanelDrawing(panelDrawing);
 	        panelControl.setpanelHelp(panelHelp);

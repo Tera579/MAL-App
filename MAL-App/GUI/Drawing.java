@@ -180,10 +180,9 @@ public class Drawing extends JPanel implements MouseListener{
         	}
         	try {
         		g2.setColor(Color.RED);
-        		int j=0;
-        		for (int i=0; i<numLines; i++) {
-        			j=j+1;
-        			drawEquipote(Conversion.pixeldoubleX(xA + dx*j*xFinder), Conversion.pixeldoubleY(yA + dy*j*yFinder));
+        		for (int i=0; i<numLines/2; i++) {
+        			drawEquipote(Conversion.pixeldoubleX((int)((xA+xB)/2 + dx*xFinder*(i+0.5))), Conversion.pixeldoubleY((int)((yA+yB)/2 + dy*yFinder*(i+0.5))));
+        			drawEquipote(Conversion.pixeldoubleX((int)((xA+xB)/2 - dx*xFinder*(i+0.5))), Conversion.pixeldoubleY((int)((yA+yB)/2 - dy*yFinder*(i+0.5))));
         		}
         	}
         	catch(NullPointerException b){}

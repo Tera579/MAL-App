@@ -141,7 +141,7 @@ public class Control extends JPanel {
             panPoint.setVisible(true);
             panPara.setVisible(false);
             Enregistrer.setVisible(false);
-            panelHelp.setText("Placez les charges A et B et renseignez leurs valeurs");
+            panelHelp.setText("Placez les charges A et B et renseignez leurs valeurs. Clic Gauche pour A et clic droit pour B.");
             });
         Para.addActionListener((ActionEvent evt) -> {
         	Para8.setX(null);
@@ -232,7 +232,7 @@ public class Control extends JPanel {
         		panelDrawing.repaint();
         		Conversion.setEch(ech);
         		if (!zoomAction) {
-                    panelHelp.setText("Placez les charges A et B et renseignez leurs valeurs");
+                    panelHelp.setText("Placez les charges A et B et renseignez leurs valeurs. Clic Gauche pour A et clic droit pour B.");
             		
             		// Reactive le JRadioButton de la 2e page et change de page
             		Point.setEnabled(true);
@@ -324,7 +324,7 @@ public class Control extends JPanel {
             });
     	
     	// Potentiel précis
-        JRadioButton affCurseur = new JRadioButton("Potentiel precis");
+        JRadioButton affCurseur = new JRadioButton("Potentiel précis");
         
         affCurseur.addActionListener((ActionEvent evt) -> {
             if (gradientCurseurSelected) panelHelp.setText("Appuyez sur le graphique pour un potentiel précis");
