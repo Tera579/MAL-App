@@ -35,6 +35,7 @@ public class Drawing extends JPanel implements MouseListener{
     // Graphique
     private static int width;
     private static int height;
+    private double ech;
     private Graphics2D g2;
     private BufferedImage image;
     
@@ -63,6 +64,7 @@ public class Drawing extends JPanel implements MouseListener{
         g2.setBackground(Color.white);
         width = this.getWidth();
         height = this.getHeight();
+        ech = (width-40)/(2*panelControl.xmax);
         image = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
         update();
     }
@@ -85,12 +87,12 @@ public class Drawing extends JPanel implements MouseListener{
     			y0 = y-(int)(ej/norm*panelControl.longueur);
     			t = Math.atan2(y-y0, x-x0)-Math.PI;
     			g2.drawLine(x, y, x0, y0); // ligne de la fleche
-    			x1 = x0 - (int)(Math.cos(t+Math.PI/4)*5);
-    			y1 = y0 - (int)(Math.sin(t+Math.PI/4)*5);
-    			g2.drawLine(x0, y0, x1, y1);
-    			x2 = x0 - (int)(Math.cos(t-Math.PI/4)*5);
-    			y2 = y0 - (int)(Math.sin(t-Math.PI/4)*5);
-    			g2.drawLine(x0, y0, x2, y2);
+    			x1 = x + (int)(Math.cos(t+Math.PI/4)*6);
+    			y1 = y + (int)(Math.sin(t+Math.PI/4)*6);
+    			g2.drawLine(x, y, x1, y1);
+    			x2 = x + (int)(Math.cos(t-Math.PI/4)*6);
+    			y2 = y + (int)(Math.sin(t-Math.PI/4)*6);
+    			g2.drawLine(x, y, x2, y2);
     		}
     	}
     }
@@ -111,8 +113,8 @@ public class Drawing extends JPanel implements MouseListener{
 			ei = elc.geti();
 			ej = elc.getj();
 			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
-			x0 = xStart+ej/norm/panelControl.ech*3;
-			y0 = yStart-ei/norm/panelControl.ech*3;
+			x0 = xStart+ej/norm/ech*3;
+			y0 = yStart-ei/norm/ech*3;
 			boolean run=true;
 			double x0clone=x0, y0clone=y0;
 			int limit = 0;
@@ -122,10 +124,10 @@ public class Drawing extends JPanel implements MouseListener{
 				double px0 = p.getV();
 				p.calculPotential(p.getA(), p.getB(), new Point (x0clone, y0clone, "Field"));
     			double px0clone = p.getV();
-    			x0clone = x0clone + ei/norm/panelControl.ech;
-				y0clone = y0clone + ej/norm/panelControl.ech;
-				x0 = x0 - ei/norm/panelControl.ech;
-				y0 = y0 - ej/norm/panelControl.ech;
+    			x0clone = x0clone + ei/norm/ech;
+				y0clone = y0clone + ej/norm/ech;
+				x0 = x0 - ei/norm/ech;
+				y0 = y0 - ej/norm/ech;
 				p.calculPotential(p.getA(), p.getB(), new Point (x0, y0, "Field"));
 				double px0next = p.getV();
 				p.calculPotential(p.getA(), p.getB(), new Point (x0clone, y0clone, "Field"));
@@ -217,8 +219,8 @@ public class Drawing extends JPanel implements MouseListener{
 			ei = elc.geti()*directORindircet;
 			ej = elc.getj()*directORindircet;
 			norm = Math.sqrt(Math.pow(ei, 2)+Math.pow(ej, 2));
-			x0 = xStart+ei/norm/panelControl.ech*3;
-			y0 = yStart+ej/norm/panelControl.ech*3;
+			x0 = xStart+ei/norm/ech*3;
+			y0 = yStart+ej/norm/ech*3;
 			xPixel = Conversion.doublepixelX(xStart);
 	    	yPixel = Conversion.doublepixelY(yStart);
 	    	x0Pixel = Conversion.doublepixelX(x0);
@@ -231,11 +233,11 @@ public class Drawing extends JPanel implements MouseListener{
 			g2.drawLine(xPixel, yPixel, x0Pixel, y0Pixel);
 			if (i%30==0 && panelControl.affChampLigneDirection && i!=0) {
 				double t = Math.atan2(yStart-y0, xStart-x0)-Math.PI;
-    			int x1 = Conversion.doublepixelX(x0 + Math.cos(t+Math.PI/4)/panelControl.ech*10*directORindircet);
-    			int y1 = Conversion.doublepixelY(y0 + Math.sin(t+Math.PI/4)/panelControl.ech*10*directORindircet);
+    			int x1 = Conversion.doublepixelX(x0 + Math.cos(t+Math.PI/4)/ech*10*directORindircet);
+    			int y1 = Conversion.doublepixelY(y0 + Math.sin(t+Math.PI/4)/ech*10*directORindircet);
     			g2.drawLine(x0Pixel, y0Pixel, x1, y1);
-    			int x2 = Conversion.doublepixelX(x0 + Math.cos(t-Math.PI/4)/panelControl.ech*10*directORindircet);
-    			int y2 = Conversion.doublepixelY(y0 + Math.sin(t-Math.PI/4)/panelControl.ech*10*directORindircet);
+    			int x2 = Conversion.doublepixelX(x0 + Math.cos(t-Math.PI/4)/ech*10*directORindircet);
+    			int y2 = Conversion.doublepixelY(y0 + Math.sin(t-Math.PI/4)/ech*10*directORindircet);
     			g2.drawLine(x0Pixel, y0Pixel, x2, y2);
 			}
 			xStart = x0;
@@ -416,7 +418,7 @@ public class Drawing extends JPanel implements MouseListener{
 
         // Trace les graduations horizontales
         for (double x = 0; x <= panelControl.xmax; x=x+panelControl.grad) {
-    			int xe = (int) (x * panelControl.ech + width/2);
+    			int xe = (int) (x * ech + width/2);
     			g2.drawLine(width - xe, height/2, width - xe, height/2 + 4);
     			g2.drawLine(xe, height/2, xe, height/2 + 4);
     			
@@ -437,7 +439,7 @@ public class Drawing extends JPanel implements MouseListener{
         for (double y = 0; y <= panelControl.xmax; y=y+panelControl.grad) {
         	// Ne dessine pas 0 (dessine precedement)
         	if (y!=0) {
-        		int ye = (int) (y * panelControl.ech + height/2);
+        		int ye = (int) (y * ech + height/2);
         		g2.drawLine(width/2, height - ye, width/2 - 4, height - ye);
         		g2.drawLine(width/2, ye, width/2 - 4, ye);
         		
