@@ -16,8 +16,8 @@ public class MyFrame extends JFrame{
 		 	MyFrame.setPreferredSize(getPreferredSize());
 		 	MyFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		 	MyFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-		 	MyFrame.setResizable(false);
-		 	MyFrame.setUndecorated(true);
+		 	MyFrame.setResizable(true);
+		 	MyFrame.setUndecorated(false);
 		 	MyFrame.add(new MyPanel());
 		 	MyFrame.pack();
 		 	MyFrame.setVisible(true);

@@ -436,7 +436,7 @@ public class Drawing extends JPanel implements MouseListener{
         }
 
         // Trace les graduations verticales
-        for (double y = 0; y <= panelControl.xmax; y=y+panelControl.grad) {
+        for (double y = 0; y <= panelControl.xmax/(width+10)*height; y=y+panelControl.grad) {
         	// Ne dessine pas 0 (dessine precedement)
         	if (y!=0) {
         		int ye = (int) (y * ech + height/2);
